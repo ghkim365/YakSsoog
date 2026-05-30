@@ -357,7 +357,7 @@ function renderMedications() {
     // Main card styling container
     const cardEl = document.createElement('div');
     cardEl.className = med.taken
-      ? "pill-card-shadow bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98]"
+      ? "pill-card-shadow bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98] relative"
       : "bg-surface-container-lowest border-2 border-primary-container rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98] relative overflow-hidden active-pill-glow";
       
     cardEl.innerHTML = `
@@ -376,9 +376,14 @@ function renderMedications() {
           <span class="bg-secondary-container/30 text-on-secondary-fixed-variant px-2 py-0.5 rounded text-xs font-semibold">${med.instruction}</span>
         </div>
       </div>
-      <button class="${btnClass}" onclick="toggleTaken(${med.id})">
-        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: ${fillStyle};">${iconName}</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="window.deleteMedication(event, ${med.id})" class="w-10 h-10 rounded-full border border-error/30 text-error flex items-center justify-center hover:bg-error/5 active:scale-90 transition-all" title="삭제">
+          <span class="material-symbols-outlined text-xl">delete</span>
+        </button>
+        <button class="${btnClass}" onclick="toggleTaken(${med.id})">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings: ${fillStyle};">${iconName}</span>
+        </button>
+      </div>
     `;
     
     container.appendChild(cardEl);
@@ -392,6 +397,18 @@ function renderMedications() {
     banner.classList.add('hidden');
   }
 }
+
+// Delete a medication
+window.deleteMedication = function(event, medId) {
+  event.stopPropagation();
+  if (confirm("정말 이 약을 복용 일정에서 삭제하시겠습니까?")) {
+    medications = medications.filter(m => m.id !== medId);
+    saveAppState();
+    renderMedications();
+    updateProgress();
+    showToast("약이 삭제되었습니다.");
+  }
+};
 
 // Toggle pill status
 window.toggleTaken = function(medId) {
