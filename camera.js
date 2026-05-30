@@ -4,6 +4,7 @@
 
 (function() {
   let html5QrcodeScanner = null;
+  let fileDecoderInstance = null;
   let isCameraActive = false;
   let isFallbackMode = false;
 
@@ -12,8 +13,25 @@
   script.src = "https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js";
   script.onload = () => {
     initCameraScannerUI();
+    preInitializeFileDecoder();
   };
   document.head.appendChild(script);
+
+  function preInitializeFileDecoder() {
+    let hiddenReader = document.getElementById('hidden-file-reader');
+    if (!hiddenReader) {
+      hiddenReader = document.createElement('div');
+      hiddenReader.id = 'hidden-file-reader';
+      hiddenReader.style.display = 'none';
+      document.body.appendChild(hiddenReader);
+    }
+    try {
+      fileDecoderInstance = new Html5Qrcode("hidden-file-reader");
+      console.log("Global file decoder pre-initialized successfully.");
+    } catch (e) {
+      console.warn("Failed to pre-initialize file decoder:", e);
+    }
+  }
 
   function initCameraScannerUI() {
     // 2. Add "실제 카메라로 스캔하기" button in the scan controls section
@@ -285,22 +303,19 @@
     try {
       const optimizedFile = await resizeImageForDecoding(file);
       
-      let temporaryScanner = html5QrcodeScanner;
-      let createdTemp = false;
-      
-      if (!temporaryScanner) {
-        let tempReader = document.getElementById('reader');
-        if (!tempReader) {
-          tempReader = document.createElement('div');
-          tempReader.id = 'reader';
-          tempReader.style.display = 'none';
-          document.body.appendChild(tempReader);
-          createdTemp = true;
+      // Safety initialization fallback
+      if (!fileDecoderInstance) {
+        let hiddenReader = document.getElementById('hidden-file-reader');
+        if (!hiddenReader) {
+          hiddenReader = document.createElement('div');
+          hiddenReader.id = 'hidden-file-reader';
+          hiddenReader.style.display = 'none';
+          document.body.appendChild(hiddenReader);
         }
-        temporaryScanner = new Html5Qrcode("reader");
+        fileDecoderInstance = new Html5Qrcode("hidden-file-reader");
       }
 
-      const decodedText = await temporaryScanner.scanFile(optimizedFile, true);
+      const decodedText = await fileDecoderInstance.scanFile(optimizedFile, true);
       
       if (window.navigator.vibrate) {
         window.navigator.vibrate(100);
