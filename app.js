@@ -88,7 +88,49 @@ document.addEventListener("DOMContentLoaded", () => {
   updateProgress();
   setupEventListeners();
   switchTab('home'); // Ensure Home page is shown initially
+  
+  // Start active alarm ticker
+  checkAlarmTrigger();
+  setInterval(checkAlarmTrigger, 30000); // Check every 30 seconds
 });
+
+let lastCheckedMinute = -1;
+function checkAlarmTrigger() {
+  const now = new Date();
+  const currentMin = now.getMinutes();
+  if (currentMin === lastCheckedMinute) return;
+  lastCheckedMinute = currentMin;
+
+  const currentHour24 = now.getHours();
+  const period = currentHour24 >= 12 ? "PM" : "AM";
+  let hour12 = currentHour24 % 12;
+  hour12 = hour12 ? hour12 : 12;
+  const formattedTime = `${String(hour12).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+
+  alarms.forEach(alarm => {
+    if (alarm.active && alarm.time === formattedTime && alarm.period === period) {
+      console.log("Triggering Alarm:", alarm.medName);
+      
+      // 1. Play local synthesizer sound if active
+      if (typeof window.testAlarmSound === 'function') {
+        window.testAlarmSound(alarm.soundType);
+      }
+      
+      // 2. Trigger vibration feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 400]);
+      }
+      
+      // 3. Trigger native background push/local notification via service worker
+      if (typeof window.triggerLocalNotification === 'function') {
+        window.triggerLocalNotification(
+          `💊 [약쏘옥] ${alarm.medName} 복용 시간!`,
+          `${alarm.medName}을(를) 복용할 시간입니다. 약을 복용하고 체크해 주세요.`
+        );
+      }
+    }
+  });
+}
 
 // Update Dates dynamically based on Current Local Time (e.g. 2026-05-30)
 function initDate() {

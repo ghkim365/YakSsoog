@@ -518,6 +518,32 @@
           </div>
         </section>
 
+        <!-- Section: PWA Background Notification Settings -->
+        <section class="space-y-4">
+          <h3 class="font-label-xl text-on-surface-variant px-2">백그라운드 알림 설정</h3>
+          <div class="settings-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-body-lg text-on-surface font-bold">복용 알림 권한 상태</p>
+                <p class="text-xs text-outline mt-0.5" id="notif-permission-status">조회 중...</p>
+              </div>
+              <button id="notif-request-btn" onclick="requestNotificationPermission()" class="btn-active-depress px-4 py-2 bg-primary text-on-primary font-bold rounded-xl text-xs flex items-center gap-1 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-sm">notifications_active</span>
+                권한 승인
+              </button>
+            </div>
+            <div class="pt-3 border-t border-outline-variant/20 flex justify-between items-center">
+              <div>
+                <p class="font-body-lg text-on-surface font-bold">백그라운드 알림 테스트</p>
+                <p class="text-[11px] text-outline mt-0.5">화면이 꺼졌을 때 알림 수신 여부를 확인합니다.</p>
+              </div>
+              <button onclick="testNotification()" class="btn-active-depress px-4 py-2 border border-outline-variant/80 text-on-surface-variant font-bold rounded-xl text-xs active:scale-95 transition-all">
+                테스트 발송
+              </button>
+            </div>
+          </div>
+        </section>
+
         <!-- Section: Help & Info (stitch _1 spec) -->
         <section class="space-y-4">
           <h3 class="font-label-xl text-on-surface-variant px-2">도움말 및 정보</h3>
@@ -660,7 +686,8 @@
   </script>
 
   <!-- Load script file -->
-  <script src="app.js?v=11"></script>
-  <script src="camera.js?v=11"></script>
+  <script src="app.js?v=12"></script>
+  <script src="camera.js?v=12"></script>
+  <script src="pwa.js?v=12"></script>
 </body>
 </html>
