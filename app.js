@@ -769,6 +769,22 @@ window.queryPublicAPI = async function() {
   } catch (error) {
     console.warn("Public API error (likely CORS or serviceKey issue):", error);
     
+    // Double Safety: Check MOCK_SCAN_DB inside catch to prevent fallback placeholder
+    if (MOCK_SCAN_DB[query]) {
+      setTimeout(() => {
+        renderScanResult(MOCK_SCAN_DB[query]);
+      }, 300);
+      return;
+    }
+    
+    const cleanQuery = query.endsWith('정') ? query.slice(0, -1) : query;
+    if (MOCK_SCAN_DB[cleanQuery]) {
+      setTimeout(() => {
+        renderScanResult(MOCK_SCAN_DB[cleanQuery]);
+      }, 300);
+      return;
+    }
+    
     // Auto fallback to dynamically generated mock item to guarantee 100% working demo
     const fallbackMedName = `${query}정`;
     const fallbackData = {
