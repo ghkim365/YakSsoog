@@ -78,6 +78,7 @@ let medications = [];
 let alarms = [];
 let activeTab = 'home';
 let currentFontScale = 2; // Default: 2 (Large)
+let repeatSettings = { enabled: false, interval: 10, count: 5 };
 
 // Initialize App
 document.addEventListener("DOMContentLoaded", () => {
@@ -173,6 +174,13 @@ function loadAppState() {
   if (keyInput) {
     keyInput.value = storedApiKey;
   }
+
+  // Load Notification Repeat Settings
+  const savedRepeat = localStorage.getItem('yagssoog_repeat_settings');
+  if (savedRepeat) {
+    repeatSettings = JSON.parse(savedRepeat);
+  }
+  updateRepeatSummaryText();
 }
 
 // Save medications state
@@ -671,6 +679,7 @@ window.queryPublicAPI = async function() {
   try {
     let response;
     let json;
+    let lastErrorMessage = "";
     
     // Attempt 1: Try secure Serverless Proxy (/api/search)
     try {
@@ -678,19 +687,38 @@ window.queryPublicAPI = async function() {
       response = await fetch(proxyUrl);
       if (response.ok) {
         json = await response.json();
+        if (json && json.success === false) {
+          lastErrorMessage = json.error || "서버 응답 오류";
+          json = null;
+        }
+      } else {
+        try {
+          const errJson = await response.json();
+          lastErrorMessage = errJson.error || `HTTP ${response.status} 오류`;
+        } catch(e) {
+          lastErrorMessage = `HTTP ${response.status} 오류`;
+        }
       }
     } catch (proxyError) {
       console.warn("Secure API proxy fetch failed, falling back to direct client fetch:", proxyError);
+      lastErrorMessage = proxyError.message || "네트워크 연결 실패";
     }
     
     // Attempt 2: Fallback to direct client-side fetch (using localStorage key)
     if (!json || !json.body?.items) {
       const serviceKey = localStorage.getItem('yagssoog_api_key');
       if (serviceKey) {
-        const directUrl = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${encodeURIComponent(serviceKey)}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
-        const directResponse = await fetch(directUrl);
-        if (directResponse.ok) {
-          json = await directResponse.json();
+        const finalKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
+        const directUrl = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${finalKey}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
+        try {
+          const directResponse = await fetch(directUrl);
+          if (directResponse.ok) {
+            json = await directResponse.json();
+          } else {
+            lastErrorMessage = `직접 요청 실패 (HTTP ${directResponse.status})`;
+          }
+        } catch(directErr) {
+          lastErrorMessage = "브라우저 CORS 차단 또는 네트워크 실패";
         }
       }
     }
@@ -716,7 +744,7 @@ window.queryPublicAPI = async function() {
       MOCK_SCAN_DB[item.ITEM_NAME] = match;
       renderScanResult(match);
     } else {
-      throw new Error("No medication found in DB");
+      throw new Error(lastErrorMessage || "검색 결과가 없거나 API 응답 구조가 올바르지 않습니다.");
     }
   } catch (error) {
     console.warn("Public API error (likely CORS or serviceKey issue):", error);
@@ -732,7 +760,7 @@ window.queryPublicAPI = async function() {
       category: "일반 의약품",
       taken: false,
       price: "약 4,000원",
-      guide: `[식약처 조회 대체 안내] 로컬 웹 브라우저의 CORS 보안 제한으로 모의 조회 결과를 반환합니다. 실제 모바일 앱 패키지(Flutter)에서는 정상적으로 실시간 낱알 식별 데이터를 받아옵니다.`,
+      guide: `[식약처 API 조회 대체 안내] 상세 오류: ${error.message}. 로컬 웹 브라우저의 CORS 제한 또는 API 인증키 오류로 인해 모의 조회 결과를 반환합니다.`,
       img: "https://img.icons8.com/color/96/pill.png"
     };
     
@@ -1152,7 +1180,8 @@ window.runLocalBackup = async function() {
       yagssoog_font_scale: localStorage.getItem('yagssoog_font_scale') || '2',
       yagssoog_guardian_enabled: localStorage.getItem('yagssoog_guardian_enabled') || 'false',
       yagssoog_guardian_phone: localStorage.getItem('yagssoog_guardian_phone') || '',
-      yagssoog_api_key: localStorage.getItem('yagssoog_api_key') || ''
+      yagssoog_api_key: localStorage.getItem('yagssoog_api_key') || '',
+      yagssoog_repeat_settings: JSON.parse(localStorage.getItem('yagssoog_repeat_settings') || '{"enabled":false,"interval":10,"count":5}')
     };
 
     const response = await fetch(`${API_SERVER_URL}/api/backup`, {
@@ -1280,6 +1309,7 @@ window.restoreBackup = async function(folderName) {
         if (res.state.yagssoog_guardian_enabled) localStorage.setItem('yagssoog_guardian_enabled', res.state.yagssoog_guardian_enabled);
         if (res.state.yagssoog_guardian_phone) localStorage.setItem('yagssoog_guardian_phone', res.state.yagssoog_guardian_phone);
         if (res.state.yagssoog_api_key) localStorage.setItem('yagssoog_api_key', res.state.yagssoog_api_key);
+        if (res.state.yagssoog_repeat_settings) localStorage.setItem('yagssoog_repeat_settings', JSON.stringify(res.state.yagssoog_repeat_settings));
       }
 
       showToast("✅ 복원 완료! 화면을 새로고침합니다.");
@@ -1381,6 +1411,130 @@ function updateLastBackupTime() {
     hour = hour ? hour : 12;
     const min = String(now.getMinutes()).padStart(2, '0');
     infoEl.innerText = `최근 백업: 오늘 ${ampm} ${hour}:${min}`;
+  }
+}
+
+// ==========================================
+// [6단계] 알림 반복 설정 모달 동작 로직
+// ==========================================
+
+// Temporary settings for pending edits before save button is pressed
+let tempRepeatSettings = { enabled: false, interval: 10, count: 5 };
+
+window.openRepeatSettingsModal = function() {
+  const modal = document.getElementById('repeat-settings-modal');
+  if (!modal) return;
+  
+  // Clone current settings to temp object
+  tempRepeatSettings = { ...repeatSettings };
+  
+  // Update modal UI elements to match temp state
+  updateRepeatModalUI();
+  
+  modal.classList.remove('hidden');
+};
+
+window.closeRepeatSettingsModal = function() {
+  const modal = document.getElementById('repeat-settings-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+};
+
+window.toggleRepeatEnabled = function() {
+  tempRepeatSettings.enabled = !tempRepeatSettings.enabled;
+  updateRepeatModalUI();
+  
+  if (window.navigator.vibrate) {
+    window.navigator.vibrate(10);
+  }
+};
+
+window.selectRepeatInterval = function(mins) {
+  if (!tempRepeatSettings.enabled) return;
+  tempRepeatSettings.interval = mins;
+  updateRepeatModalUI();
+};
+
+window.selectRepeatCount = function(cnt) {
+  if (!tempRepeatSettings.enabled) return;
+  tempRepeatSettings.count = cnt;
+  updateRepeatModalUI();
+};
+
+window.saveRepeatSettings = function() {
+  // Save temp settings to active state
+  repeatSettings = { ...tempRepeatSettings };
+  localStorage.setItem('yagssoog_repeat_settings', JSON.stringify(repeatSettings));
+  
+  // Update main summary text
+  updateRepeatSummaryText();
+  
+  showToast("알림 반복 설정이 저장되었습니다!");
+  closeRepeatSettingsModal();
+};
+
+function updateRepeatModalUI() {
+  const toggleBtn = document.getElementById('repeat-toggle-btn');
+  const toggleCircle = document.getElementById('repeat-toggle-circle');
+  const optionsContainer = document.getElementById('repeat-options-container');
+  
+  if (!toggleBtn || !toggleCircle || !optionsContainer) return;
+  
+  // 1. Toggle button styling
+  if (tempRepeatSettings.enabled) {
+    toggleBtn.classList.remove('bg-outline-variant');
+    toggleBtn.classList.add('bg-primary');
+    toggleCircle.classList.remove('translate-x-0');
+    toggleCircle.classList.add('translate-x-6');
+    optionsContainer.style.opacity = '1';
+    optionsContainer.style.pointerEvents = 'auto';
+  } else {
+    toggleBtn.classList.add('bg-outline-variant');
+    toggleBtn.classList.remove('bg-primary');
+    toggleCircle.classList.add('translate-x-6');
+    toggleCircle.classList.remove('translate-x-6');
+    toggleCircle.classList.add('translate-x-0');
+    optionsContainer.style.opacity = '0.4';
+    optionsContainer.style.pointerEvents = 'none';
+  }
+  
+  // 2. Interval buttons styling
+  const intervals = [5, 10, 15, 30];
+  intervals.forEach(val => {
+    const btn = document.getElementById(`repeat-interval-${val}`);
+    if (btn) {
+      if (tempRepeatSettings.enabled && tempRepeatSettings.interval === val) {
+        btn.className = "py-2.5 text-xs font-bold rounded-xl border-2 border-primary bg-primary-container/10 text-primary active:scale-95 transition-all";
+      } else {
+        btn.className = "py-2.5 text-xs font-bold rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface-variant active:scale-95 transition-all";
+      }
+    }
+  });
+  
+  // 3. Count buttons styling
+  const counts = [3, 5, 999];
+  counts.forEach(val => {
+    const btn = document.getElementById(`repeat-count-${val}`);
+    if (btn) {
+      if (tempRepeatSettings.enabled && tempRepeatSettings.count === val) {
+        btn.className = "py-2.5 text-xs font-bold rounded-xl border-2 border-primary bg-primary-container/10 text-primary active:scale-95 transition-all";
+      } else {
+        btn.className = "py-2.5 text-xs font-bold rounded-xl border border-outline-variant/30 bg-surface-container text-on-surface-variant active:scale-95 transition-all";
+      }
+    }
+  });
+}
+
+function updateRepeatSummaryText() {
+  const summaryEl = document.getElementById('repeat-settings-summary');
+  if (!summaryEl) return;
+  
+  if (repeatSettings.enabled) {
+    const countText = repeatSettings.count === 999 ? "무제한" : `${repeatSettings.count}회`;
+    summaryEl.innerText = `반복: 켜짐 (${repeatSettings.interval}분 간격 / ${countText})`;
+  } else {
+    summaryEl.innerText = "반복: 꺼짐";
   }
 }
 

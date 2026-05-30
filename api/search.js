@@ -25,7 +25,8 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const url = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${encodeURIComponent(serviceKey)}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
+    const finalKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
+    const url = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${finalKey}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
     const apiRes = await fetch(url);
     if (!apiRes.ok) {
       return res.status(apiRes.status).json({ error: `Public API returned status ${apiRes.status}` });

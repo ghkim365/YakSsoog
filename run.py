@@ -274,7 +274,8 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                     return
 
                 # Perform actual API request server-side
-                url = f"https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey={env_key}&item_name={quote(query)}&pageNo=1&numOfRows=1&type=json"
+                final_key = env_key if "%" in env_key else quote(env_key)
+                url = f"https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey={final_key}&item_name={quote(query)}&pageNo=1&numOfRows=1&type=json"
                 
                 req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                 try:
