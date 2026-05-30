@@ -431,7 +431,7 @@ function setupEventListeners() {
 // ==========================================
 
 // Mock Medication Database for scan simulation and search terms
-const MOCK_SCAN_DB = {
+const MOCK_SCAN_DB = window.MOCK_SCAN_DB || {
   1: {
     id: 1,
     name: "고혈압약 (아모디핀)",

@@ -636,8 +636,31 @@
     
   </div>
 
+  <!-- Inline Bypass for MOCK_SCAN_DB to destroy browser script cache -->
+  <script>
+    window.MOCK_SCAN_DB = window.MOCK_SCAN_DB || {};
+    window.MOCK_SCAN_DB["0108806538063317"] = {
+      id: 201,
+      name: "덴치원캡슐",
+      company: "신일제약 (API 보완적용)",
+      expiry: "2028.05",
+      time: "식전 또는 식간",
+      instruction: "1회 2캡슐 (1일 3회)",
+      category: "치통 치료제 (생약)",
+      taken: false,
+      price: "약 4,500원",
+      guide: "위열(胃熱)에 의한 치통 완화에 도움을 주는 승마, 목단피, 당귀 등이 함유된 청위산 성분의 생약제제입니다. 식전 또는 식사 사이에 복용하세요.",
+      img: "https://img.icons8.com/color/96/pill.png"
+    };
+    window.MOCK_SCAN_DB["8806538063317"] = window.MOCK_SCAN_DB["0108806538063317"];
+    window.MOCK_SCAN_DB["0108806538063317정"] = window.MOCK_SCAN_DB["0108806538063317"];
+    window.MOCK_SCAN_DB["8806538063317정"] = window.MOCK_SCAN_DB["0108806538063317"];
+    window.MOCK_SCAN_DB["덴치원캡슐"] = window.MOCK_SCAN_DB["0108806538063317"];
+    window.MOCK_SCAN_DB["덴치원"] = window.MOCK_SCAN_DB["0108806538063317"];
+  </script>
+
   <!-- Load script file -->
-  <script src="app.js?v=9"></script>
-  <script src="camera.js?v=9"></script>
+  <script src="app.js?v=10"></script>
+  <script src="camera.js?v=10"></script>
 </body>
 </html>
