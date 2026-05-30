@@ -669,15 +669,34 @@ window.queryPublicAPI = async function() {
   
   // Real API Fetch with CORS & serviceKey check
   try {
-    const serviceKey = localStorage.getItem('yagssoog_api_key') || "9fe3ddde51d"; // Read stored key or fall back
-    const url = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${serviceKey}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
+    let response;
+    let json;
     
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("API Network response was not ok");
-    const json = await response.json();
+    // Attempt 1: Try secure Serverless Proxy (/api/search)
+    try {
+      const proxyUrl = `/api/search?query=${encodeURIComponent(query)}`;
+      response = await fetch(proxyUrl);
+      if (response.ok) {
+        json = await response.json();
+      }
+    } catch (proxyError) {
+      console.warn("Secure API proxy fetch failed, falling back to direct client fetch:", proxyError);
+    }
+    
+    // Attempt 2: Fallback to direct client-side fetch (using localStorage key)
+    if (!json || !json.body?.items) {
+      const serviceKey = localStorage.getItem('yagssoog_api_key');
+      if (serviceKey) {
+        const directUrl = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${encodeURIComponent(serviceKey)}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
+        const directResponse = await fetch(directUrl);
+        if (directResponse.ok) {
+          json = await directResponse.json();
+        }
+      }
+    }
     
     // Parse result
-    const items = json.body?.items;
+    const items = json?.body?.items;
     if (items && items.length > 0) {
       const item = items[0];
       const match = {

@@ -236,6 +236,73 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode('utf-8'))
+        # 5. SECURE PROXY SEARCH FOR LOCAL DEVELOPMENT
+        elif self.path.startswith('/api/search'):
+            try:
+                from urllib.parse import urlparse, parse_qs, quote
+                import urllib.request
+                
+                parsed = urlparse(self.path)
+                query_params = parse_qs(parsed.query)
+                query = query_params.get('query', [''])[0]
+                
+                if not query:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "query parameter is required"}, ensure_ascii=False).encode('utf-8'))
+                    return
+                
+                # Read from .env file if it exists
+                env_key = ""
+                env_file_path = os.path.join(CWD, ".env")
+                if os.path.exists(env_file_path):
+                    with open(env_file_path, "r", encoding="utf-8") as env_f:
+                        for line in env_f:
+                            if line.strip().startswith("YAKSSOOG_API_KEY="):
+                                env_key = line.strip().split("=", 1)[1].strip('"').strip("'").strip()
+                
+                # Fallback to os.environ
+                if not env_key:
+                    env_key = os.environ.get("YAKSSOOG_API_KEY", "")
+                
+                if not env_key:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "Local .env file does not contain YAKSSOOG_API_KEY."}, ensure_ascii=False).encode('utf-8'))
+                    return
+
+                # Perform actual API request server-side
+                url = f"https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey={env_key}&item_name={quote(query)}&pageNo=1&numOfRows=1&type=json"
+                
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                try:
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        res_body = response.read()
+                except urllib.error.HTTPError as he:
+                    error_details = he.read().decode('utf-8', errors='ignore')
+                    self.send_response(he.code)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        "success": False, 
+                        "error": f"HTTP Error {he.code}", 
+                        "details": error_details
+                    }, ensure_ascii=False).encode('utf-8'))
+                    return
+                    
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(res_body)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode('utf-8'))
         else:
             super().do_GET()
 
