@@ -29,12 +29,21 @@
         <h3 class="font-label-lg font-bold text-on-surface">실제 스마트폰 카메라 스캔</h3>
       </div>
       <p class="text-xs text-on-surface-variant leading-relaxed">
-        카메라를 통해 약 포장지의 바코드를 직접 스캔합니다. (HTTP 환경이나 일부 브라우저에서는 안전한 체험 모드로 자동 실행됩니다.)
+        카메라를 통해 약 포장지의 바코드를 직접 스캔합니다.
       </p>
-      <button id="toggle-camera-scan-btn" onclick="toggleCameraScan()" class="btn-active-depress w-full h-12 bg-primary text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md">
-        <span class="material-symbols-outlined">videocam</span>
-        카메라 스캔 시작
-      </button>
+      <div class="space-y-2">
+        <button id="toggle-camera-scan-btn" onclick="window.toggleCameraScan()" class="btn-active-depress w-full h-12 bg-primary text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md">
+          <span class="material-symbols-outlined">videocam</span>
+          실시간 카메라 스캔 시작
+        </button>
+        <div class="relative">
+          <input type="file" id="barcode-image-input" accept="image/*" class="hidden" onchange="window.handleBarcodeImageUpload(event)" />
+          <button onclick="document.getElementById('barcode-image-input').click()" class="btn-active-depress w-full h-12 bg-secondary-fixed text-on-secondary-fixed-variant font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm">
+            <span class="material-symbols-outlined">photo_library</span>
+            바코드 사진 촬영 / 사진 선택
+          </button>
+        </div>
+      </div>
     `;
 
     // Append as first child to controlsSection
@@ -107,7 +116,7 @@
           onScanFailure
         );
 
-        // Apply advanced autofocus constraints to clear macro blur
+        // Apply advanced autofocus and default zoom constraints to clear macro blur
         setTimeout(async () => {
           const videoEl = document.querySelector('#reader video');
           if (videoEl && videoEl.srcObject) {
@@ -118,11 +127,17 @@
               if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
                 advancedConstraints.focusMode = 'continuous';
               }
+              if (capabilities.zoom) {
+                const minZoom = capabilities.zoom.min || 1.0;
+                const maxZoom = capabilities.zoom.max || 1.0;
+                const idealZoom = Math.min(minZoom * 1.5, maxZoom);
+                advancedConstraints.zoom = idealZoom;
+              }
               if (Object.keys(advancedConstraints).length > 0) {
                 try {
                   await track.applyConstraints({ advanced: [advancedConstraints] });
                 } catch (e) {
-                  console.warn("Failed to apply advanced camera focus", e);
+                  console.warn("Failed to apply advanced camera focus/zoom", e);
                 }
               }
             }
@@ -223,4 +238,59 @@
   function onScanFailure(error) {
     // Fail silently frame by frame
   }
+
+  window.handleBarcodeImageUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    showToast("📸 사진 분석 중...");
+    
+    // Create a temporary Html5Qrcode instance if not already running
+    let temporaryScanner = html5QrcodeScanner;
+    let createdTemp = false;
+    
+    if (!temporaryScanner) {
+      // Create a temporary hidden div or reuse reader
+      let tempReader = document.getElementById('reader');
+      if (!tempReader) {
+        tempReader = document.createElement('div');
+        tempReader.id = 'reader';
+        tempReader.style.display = 'none';
+        document.body.appendChild(tempReader);
+        createdTemp = true;
+      }
+      temporaryScanner = new Html5Qrcode("reader");
+    }
+
+    try {
+      const decodedText = await temporaryScanner.scanFile(file, true);
+      // Success! Play sound/vibration and process code
+      if (window.navigator.vibrate) {
+        window.navigator.vibrate(100);
+      }
+      
+      const apiInput = document.getElementById('api-search-input');
+      if (apiInput) {
+        apiInput.value = decodedText;
+        showToast(`📸 바코드 분석 완료: ${decodedText}`);
+        if (typeof window.queryPublicAPI === 'function') {
+          window.queryPublicAPI();
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to scan file:", err);
+      alert("바코드를 인식하지 못했습니다. 더 밝고 초점이 또렷하게 인쇄된 바코드 영역만 잘 나오도록 촬영해 주세요.");
+    } finally {
+      // Cleanup if temporary was created
+      if (createdTemp && temporaryScanner) {
+        try {
+          temporaryScanner.clear();
+        } catch (e) {}
+        const tempReader = document.getElementById('reader');
+        if (tempReader) tempReader.remove();
+      }
+      // Reset file input so same file can be uploaded again
+      event.target.value = '';
+    }
+  };
 })();
