@@ -496,8 +496,28 @@ const MOCK_SCAN_DB = {
     price: "약 3,000원",
     guide: "가장 대중적인 아세트아미노펜 진통제입니다. 하루 최대 4g(8정)을 초과해 복용하지 마세요.",
     img: "https://img.icons8.com/color/96/pill.png"
+  },
+  "0108806538063317": {
+    id: 201,
+    name: "덴치원캡슐",
+    company: "신일제약 (API 보완적용)",
+    expiry: "2028.05",
+    time: "식전 또는 식간",
+    instruction: "1회 2캡슐 (1일 3회)",
+    category: "치통 치료제 (생약)",
+    taken: false,
+    price: "약 4,500원",
+    guide: "위열(胃熱)에 의한 치통 완화에 도움을 주는 승마, 목단피, 당귀 등이 함유된 청위산 성분의 생약제제입니다. 식전 또는 식사 사이에 복용하세요.",
+    img: "https://img.icons8.com/color/96/pill.png"
   }
 };
+
+// Map barcode aliases
+MOCK_SCAN_DB["8806538063317"] = MOCK_SCAN_DB["0108806538063317"];
+MOCK_SCAN_DB["0108806538063317정"] = MOCK_SCAN_DB["0108806538063317"];
+MOCK_SCAN_DB["8806538063317정"] = MOCK_SCAN_DB["0108806538063317"];
+MOCK_SCAN_DB["덴치원캡슐"] = MOCK_SCAN_DB["0108806538063317"];
+MOCK_SCAN_DB["덴치원"] = MOCK_SCAN_DB["0108806538063317"];
 
 let scanningActive = false;
 
