@@ -92,6 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Start active alarm ticker
   checkAlarmTrigger();
   setInterval(checkAlarmTrigger, 30000); // Check every 30 seconds
+
+  // Reschedule background alarms on startup
+  if (typeof window.rescheduleAllAlarms === 'function') {
+    window.rescheduleAllAlarms();
+  }
 });
 
 let lastCheckedMinute = -1;
@@ -464,6 +469,11 @@ window.toggleTaken = function(medId) {
     // Simulate haptic feedback on toggle click
     if (window.navigator.vibrate) {
       window.navigator.vibrate(12);
+    }
+
+    // Guardian hook: notify guardian.js of taken state change
+    if (typeof window.onMedTakenChange === 'function') {
+      window.onMedTakenChange(med.id, med.taken, med.name);
     }
   }
 };
@@ -895,6 +905,9 @@ function showToast(message) {
 
 function saveAlarmsState() {
   localStorage.setItem('yagssoog_alarm_list', JSON.stringify(alarms));
+  if (typeof window.rescheduleAllAlarms === 'function') {
+    window.rescheduleAllAlarms();
+  }
 }
 
 // Render dynamic alarm card list matching _4/code.html

@@ -416,29 +416,37 @@
           </div>
         </section>
 
-        <!-- Section: Guardian Connection (stitch _1: chevron navigation style) -->
-        <section class="settings-card p-6 shadow-sm flex items-center justify-between cursor-pointer" onclick="toggleGuardianAlert()">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
-              <span class="material-symbols-outlined" style="font-size:32px;">family_restroom</span>
+        <!-- Section: Guardian Connection -->
+        <section class="settings-card p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+                <span class="material-symbols-outlined" style="font-size:28px;">family_restroom</span>
+              </div>
+              <div>
+                <h2 class="font-headline-md text-headline-md-mobile text-on-surface">보호자 안심 알림</h2>
+                <p class="font-body-md text-on-surface-variant">복용 미확인 시 자동 발송</p>
+                <span id="guardian-status-badge" class="text-xs font-bold text-outline">꺼짐</span>
+              </div>
             </div>
-            <div>
-              <h2 class="font-headline-md text-headline-md-mobile text-on-surface">보호자 연결</h2>
-              <p class="font-body-md text-on-surface-variant">자녀나 보호자에게 알림을 보냅니다.</p>
-              <p class="text-xs text-outline mt-1">약 복용 체크 후 30분 내 미확인 시 자동 발송</p>
-            </div>
+            <button id="guardian-toggle" onclick="toggleGuardianAlert()" class="btn-active-depress w-14 h-8 bg-outline-variant rounded-full relative p-1 transition-colors duration-300">
+              <div id="guardian-toggle-circle" class="w-6 h-6 bg-white rounded-full shadow-sm translate-x-0 transition-transform duration-300"></div>
+            </button>
           </div>
-          <span class="material-symbols-outlined text-outline">chevron_right</span>
-        </section>
 
-        <!-- Guardian phone input (hidden by default) -->
-        <div id="guardian-phone-container" class="hidden settings-card p-5 shadow-sm space-y-3">
-          <p class="font-label-lg text-on-surface-variant">보호자 연락처</p>
-          <div class="flex gap-2">
-            <input type="tel" id="guardian-phone-input" placeholder="010-0000-0000" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
-            <button onclick="saveGuardianPhone()" class="btn-active-depress bg-primary text-on-primary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+          <!-- Guardian phone input (hidden by default) -->
+          <div id="guardian-phone-container" class="hidden border-t border-outline-variant/20 pt-4 space-y-3">
+            <p class="font-label-lg text-on-surface-variant">보호자 연락처</p>
+            <div class="flex gap-2">
+              <input type="tel" id="guardian-phone-input" placeholder="010-0000-0000" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+              <button onclick="saveGuardianPhone()" class="btn-active-depress bg-primary text-on-primary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+            </div>
+            <div class="flex justify-between items-center pt-1">
+              <p class="text-xs text-outline">복용 미확인 30분 후 자동 발송</p>
+              <button onclick="testGuardianAlert()" class="btn-active-depress px-3 py-1.5 border border-outline-variant/80 text-on-surface-variant font-bold rounded-xl text-xs active:scale-95 transition-all">테스트 발송</button>
+            </div>
           </div>
-        </div>
+        </section>
 
         <!-- Section: Notification Repeat (stitch _1 spec) -->
         <section class="settings-card p-6 shadow-sm flex items-center justify-between cursor-pointer" onclick="openRepeatSettingsModal()">
@@ -689,5 +697,6 @@
   <script src="app.js?v=12"></script>
   <script src="camera.js?v=12"></script>
   <script src="pwa.js?v=12"></script>
+  <script src="guardian.js?v=1"></script>
 </body>
 </html>

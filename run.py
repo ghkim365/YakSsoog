@@ -202,6 +202,40 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode('utf-8'))
+        # 4. GUARDIAN ALERT SEND
+        elif self.path == '/api/guardian/send':
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                payload = json.loads(post_data.decode('utf-8'))
+                phone   = payload.get('phone', '').strip()
+                message = payload.get('message', '').strip()
+
+                if not phone or not message:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "phone and message required"}).encode())
+                    return
+
+                # Log the message to console (real SMS requires external API like CoolSMS/Twilio)
+                print(f"[Guardian] SMS to {phone}: {message}")
+
+                # Try opening default SMS app via mailto-style (desktop fallback)
+                # On mobile PWA, the client-side tel: fallback handles it
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True,
+                    "message": f"Guardian alert logged for {phone}"
+                }, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode())
+
         else:
             super().do_POST()
 
