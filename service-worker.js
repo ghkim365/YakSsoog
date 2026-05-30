@@ -1,9 +1,10 @@
-const CACHE_NAME = 'yagssoog-cache-v1';
+const CACHE_NAME = 'yagssoog-cache-v2';
 const ASSETS = [
   '/',
   '/index.html',
   '/app.js',
   '/camera.js',
+  '/guardian.js',
   '/assets/YakSsoog_logo_500x500.png'
 ];
 
@@ -19,21 +20,43 @@ self.addEventListener('install', (event) => {
 
 // Activate Service Worker and clean old caches
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            console.log('SW: Deleting old cache', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
-// Fetch handler for offline support
+// Fetch handler for offline support (Network-First Strategy)
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http')) return;
   
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request).catch(() => {
-        // Fallback for offline mode if resources are missing
-        return caches.match('/index.html');
-      });
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        // Fallback to cache if network is offline/fails
+        return caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || caches.match('/index.html');
+        });
+      })
   );
 });
 
