@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#633100",
+                        "surface-container-low": "#f5f3ee",
+                        "surface-container": "#f0eee9",
+                        "inverse-on-surface": "#f2f1ec",
+                        "on-tertiary-fixed": "#002115",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#dac2b2",
+                        "outline": "#877366",
+                        "on-surface": "#1b1c19",
+                        "background": "#fbf9f4",
+                        "surface": "#fbf9f4",
+                        "tertiary-fixed-dim": "#81d7b2",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#001d33",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#30312e",
+                        "on-surface-variant": "#544338",
+                        "on-secondary-fixed-variant": "#194a70",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#004833",
+                        "on-primary-fixed": "#301400",
+                        "surface-bright": "#fbf9f4",
+                        "secondary": "#356289",
+                        "primary-fixed-dim": "#ffb781",
+                        "on-primary-fixed-variant": "#703800",
+                        "surface-container-high": "#eae8e3",
+                        "secondary-container": "#a5d0fe",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#934b00",
+                        "surface-dim": "#dbdad5",
+                        "surface-variant": "#e4e2dd",
+                        "surface-container-highest": "#e4e2dd",
+                        "on-error": "#ffffff",
+                        "tertiary": "#006c4e",
+                        "tertiary-fixed": "#9df4ce",
+                        "primary-fixed": "#ffdcc5",
+                        "primary-container": "#f39241",
+                        "on-secondary-container": "#2c5981",
+                        "on-background": "#1b1c19",
+                        "tertiary-container": "#64ba97",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#cfe5ff",
+                        "secondary-fixed-dim": "#a0cbf8",
+                        "inverse-primary": "#ffb781",
+                        "primary": "#934b00",
+                        "on-tertiary-fixed-variant": "#00513a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-gap": "1rem",
+                        "margin-mobile": "1.5rem",
+                        "section-gap": "2.5rem",
+                        "touch-target-min": "56px",
+                        "gutter": "1.25rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"],
+                        "label-xl": ["Plus Jakarta Sans"],
+                        "body-xl": ["Noto Sans"],
+                        "body-lg": ["Noto Sans"],
+                        "body-md": ["Noto Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "label-lg-mobile": ["14px", {"lineHeight": "18px", "fontWeight": "600"}],
+                        "label-lg": ["16px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "label-xl": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "body-xl": ["22px", {"lineHeight": "32px", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanner-line {
+            animation: scan 3s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0% { top: 10%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 90%; opacity: 0; }
+        }
+        .result-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .pill-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface border-b border-outline-variant/30 shadow-sm flex justify-between items-center px-margin-mobile h-touch-target-min">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md-mobile text-primary font-bold">약쏘옥</span>
+</div>
+<div class="text-primary font-label-lg text-label-lg-mobile">
+            10월 24일 (목)
+        </div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow pt-touch-target-min pb-[100px]">
+<!-- Camera Viewfinder (Simulated) -->
+<section class="relative w-full aspect-[4/5] md:aspect-video bg-black overflow-hidden">
+<div class="absolute inset-0 z-0 overflow-hidden">
+<img class="w-full h-full object-cover opacity-70 scale-110" data-alt="A close-up, high-angle shot of a medical blister pack containing white pills resting on a warm wooden pharmacy counter. The scene is bathed in bright, soft, natural daylight, creating a gentle and clean atmosphere. A translucent digital interface frame is superimposed over the center of the image, suggesting an active camera scan. The overall aesthetic is professional, modern, and clinical yet warm, aligning with the brand's trustworthy companion identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYNCpfAbaZOphenDcJaBP12aVnYmcPPdYxgX_Azpc8_eMFLcelIwTU09NNqE_xKqSbg8Nm0deZQlj4KJkvjhK-_pkLj34MDE46mXw59OaaANvkzYb6gDsWEYFrjBf-9xUS4hmHdt34Fuy-d-2zIh_9qn9WNwtl_m53Wi7z4QCd2y2Mh9nQCTAJsuxZ--AWLw4n2Jc0QUCxXYZ-MNSIPumFmNEVotBCHKw0QveQDmjFqldnx-GmfDQlyT13pl_SwZPGGKxnLvG8_mjk"/>
+</div>
+<!-- Scanner Effects -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="w-64 h-64 border-2 border-primary-container/60 rounded-3xl relative">
+<div class="scanner-line absolute left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-container to-transparent blur-sm"></div>
+<!-- Corner Accents -->
+<div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-primary-container rounded-tl-xl"></div>
+<div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-primary-container rounded-tr-xl"></div>
+<div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-primary-container rounded-bl-xl"></div>
+<div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary-container rounded-br-xl"></div>
+</div>
+</div>
+<!-- Close/Back Button -->
+<button class="absolute top-4 left-4 p-3 bg-surface-container/20 backdrop-blur-md text-white rounded-full active:scale-95 transition-all">
+<span class="material-symbols-outlined">close</span>
+</button>
+</section>
+<!-- Result Card -->
+<section class="relative -mt-12 px-margin-mobile">
+<div class="result-slide-up bg-surface-container-lowest border border-outline-variant/30 rounded-[32px] shadow-[0_12px_40px_rgba(0,0,0,0.1)] p-6 md:max-w-xl md:mx-auto">
+<!-- Pill Identity -->
+<div class="flex items-center gap-6 mb-8">
+<div class="relative w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center p-2 border border-outline-variant/20 pill-float">
+<img alt="고혈압약 이미지" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3g_ENHplwqqHHynmqhzJUexTWPKIEP7xh7Wf2gYpPoJ3HMIRGdYlYJB52i-5mq3yf8rH4nP05kFzaFHYqrYtxcN2AvCENjTnxNtSrO3qwRsS01YObxpfpim2EZse9tD6QZS6AX26gD6T66aLEGda7sPUcN1XmpZUCXkYhRIvv_snMKH_a5USO2Z_sQop-ePw-JI7AvSSxIym6X2CeiXi3WEghXzrKaUZBJN3097WbTFiZuZEIAl9n6IjGr1ad5-sh3WC4CK8tlKPr"/>
+</div>
+<div>
+<span class="inline-block px-3 py-1 bg-secondary-container/30 text-on-secondary-container rounded-full font-label-lg text-label-lg-mobile mb-2">혈압 관리</span>
+<h1 class="font-headline-md text-headline-md-mobile text-on-surface">고혈압약 (아모디핀)</h1>
+<p class="text-on-surface-variant font-body-md">Amodipine Besylate 5mg</p>
+</div>
+</div>
+<!-- Info Grid -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
+<p class="text-outline font-label-lg text-label-lg-mobile mb-1">제조사</p>
+<p class="text-on-surface font-body-lg">유한양행</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
+<p class="text-outline font-label-lg text-label-lg-mobile mb-1">유통기한</p>
+<p class="text-on-surface font-body-lg">2026.12</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
+<p class="text-outline font-label-lg text-label-lg-mobile mb-1">복용법</p>
+<p class="text-primary font-body-lg font-bold">식후 30분</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10">
+<p class="text-outline font-label-lg text-label-lg-mobile mb-1">가격</p>
+<p class="text-on-surface font-body-lg">약 5,000원</p>
+</div>
+</div>
+<!-- Guidance Note -->
+<div class="flex items-start gap-3 p-4 bg-tertiary-container/10 border border-tertiary-container/20 rounded-2xl mb-8">
+<span class="material-symbols-outlined text-tertiary">info</span>
+<p class="text-on-tertiary-container text-body-md leading-relaxed">
+                        이 약은 혈압을 낮추는 약입니다. 매일 일정한 시간에 복용하는 것이 중요합니다.
+                    </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-3">
+<button class="w-full h-touch-target-min bg-primary-container text-on-primary-container font-headline-md text-headline-md-mobile rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-primary-container/20">
+<span class="material-symbols-outlined" data-weight="fill">add_task</span>
+                        내 일정에 추가
+                    </button>
+<a class="w-full h-touch-target-min bg-white border-2 border-secondary text-secondary font-label-xl rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined">open_in_new</span>
+                        정확한 정보 확인 (식약처)
+                    </a>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe bg-surface-container-low z-50 h-[80px] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] border-t border-outline-variant/20">
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant transition-colors hover:bg-surface-container-high p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-lg text-label-lg-mobile">홈</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-6 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-weight="fill">document_scanner</span>
+<span class="font-label-lg text-label-lg-mobile">스캔</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant transition-colors hover:bg-surface-container-high p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-lg text-label-lg-mobile">알람</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-secondary-fixed-variant transition-colors hover:bg-surface-container-high p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg-mobile">설정</span>
+</a>
+</nav>
+<script>
+        // Simple haptic feedback simulation
+        document.querySelectorAll('button, a').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Theme toggle logic (placeholder)
+        const applyTheme = (isDark) => {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    </script>
+</body></html>

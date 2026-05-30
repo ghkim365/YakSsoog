@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="약쏘옥">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="assets/YakSsoog_logo_500x500.png">
+  <link rel="manifest" href="manifest.json">
+  <title>약쏘옥 - Warm & Reliable Care</title>
+  
+  <!-- Tailwind CSS & Plugins via CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <!-- Korean Lunar Calendar converter -->
+  <script src="https://cdn.jsdelivr.net/npm/korean-lunar-calendar@0.0.8/src/korean-lunar-calendar.js"></script>
+  
+  <!-- Fonts: Plus Jakarta Sans for Headers, Noto Sans KR for Body, and Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#633100",
+            "surface-container-low": "#f5f3ee",
+            "surface-container": "#f0eee9",
+            "inverse-on-surface": "#f2f1ec",
+            "on-tertiary-fixed": "#002115",
+            "surface-container-lowest": "#ffffff",
+            "outline-variant": "#dac2b2",
+            "outline": "#877366",
+            "on-surface": "#1b1c19",
+            "background": "#fbf9f4",
+            "surface": "#fbf9f4",
+            "tertiary-fixed-dim": "#81d7b2",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed": "#001d33",
+            "on-primary": "#ffffff",
+            "inverse-surface": "#30312e",
+            "on-surface-variant": "#544338",
+            "on-secondary-fixed-variant": "#194a70",
+            "error-container": "#ffdad6",
+            "on-tertiary-container": "#004833",
+            "on-primary-fixed": "#301400",
+            "surface-bright": "#fbf9f4",
+            "secondary": "#356289",
+            "primary-fixed-dim": "#ffb781",
+            "on-primary-fixed-variant": "#703800",
+            "surface-container-high": "#eae8e3",
+            "secondary-container": "#a5d0fe",
+            "on-error-container": "#93000a",
+            "surface-tint": "#934b00",
+            "surface-dim": "#dbdad5",
+            "surface-variant": "#e4e2dd",
+            "surface-container-highest": "#e4e2dd",
+            "on-error": "#ffffff",
+            "tertiary": "#006c4e",
+            "tertiary-fixed": "#9df4ce",
+            "primary-fixed": "#ffdcc5",
+            "primary-container": "#f39241",
+            "on-secondary-container": "#2c5981",
+            "on-background": "#1b1c19",
+            "tertiary-container": "#64ba97",
+            "error": "#ba1a1a",
+            "secondary-fixed": "#cfe5ff",
+            "secondary-fixed-dim": "#a0cbf8",
+            "inverse-primary": "#ffb781",
+            "primary": "#934b00",
+            "on-tertiary-fixed-variant": "#00513a"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "2xl": "1rem",
+            "3xl": "1.5rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "stack-gap": "1rem",
+            "margin-mobile": "1.5rem",
+            "section-gap": "2.5rem",
+            "touch-target-min": "56px",
+            "gutter": "1.25rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "headline-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "label-lg": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "label-xl": ["Plus Jakarta Sans", "Noto Sans KR"],
+            "body-xl": ["Noto Sans", "Noto Sans KR"],
+            "body-lg": ["Noto Sans", "Noto Sans KR"],
+            "body-md": ["Noto Sans", "Noto Sans KR"],
+            "headline-xl": ["Plus Jakarta Sans", "Noto Sans KR"]
+          },
+          "fontSize": {
+            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+            "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+            "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+            "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+            "label-lg": ["16px", {"lineHeight": "20px", "fontWeight": "600"}],
+            "label-lg-mobile": ["14px", {"lineHeight": "18px", "fontWeight": "600"}],
+            "label-xl": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+            "body-xl": ["22px", {"lineHeight": "32px", "fontWeight": "500"}],
+            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+            "headline-xl": ["40px", {"lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+          }
+        },
+      },
+    }
+  </script>
+  
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      background-color: #fbf9f4;
+      font-family: 'Noto Sans KR', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Active view transitioning classes */
+    .view-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.22s ease-in-out;
+    }
+    .view-content.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    /* Smooth bottom padding so nav bar never covers content */
+    #main-viewport {
+      padding-bottom: 80px;
+    }
+
+    /* Tactile depression animation */
+    .btn-active-depress:active {
+      transform: scale(0.97);
+    }
+    
+    /* ─── Font scale: controlled via JS (html root font-size) ─────────────────
+       applyFontScale() sets document.documentElement.style.fontSize directly.
+       Tailwind's rem-based classes (text-xs, text-sm, etc.) all scale with it.
+       See FONT_SCALE_MAP in app.js: 1=15px | 2=17px | 3=20px              */
+
+    /* Scanner laser animation */
+    .scanner-line {
+      animation: scan 2.8s ease-in-out infinite;
+    }
+    @keyframes scan {
+      0%   { top: 8%;  opacity: 0; }
+      20%  { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { top: 88%; opacity: 0; }
+    }
+
+    /* Floating pill icon pulse */
+    .pill-float {
+      animation: float 3.6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+    
+    /* Active alarm card subtle left-border glow */
+    .alarm-card-glow {
+      border-left: 4px solid #f39241 !important;
+    }
+
+    /* Scan result slide-up entrance */
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.3s ease-out forwards;
+    }
+
+    /* Smartphone Mockup shadow */
+    .phone-shadow {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Settings card — from stitch _1/code.html */
+    .settings-card {
+      background-color: #ffffff;
+      border: 1px solid #e4e2dd;
+      border-radius: 1rem;
+      transition: all 0.2s ease;
+    }
+    .settings-card:active {
+      transform: scale(0.98);
+      background-color: #f5f3ee;
+    }
+
+    /* Font size slider thumb — from stitch _1/code.html */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #dac2b2;
+      border-radius: 5px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 32px;
+      height: 32px;
+      background: #934b00;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 md:p-6 overflow-x-hidden">
+
+  <!-- Unified Smartphone Shell Mockup -->
+  <div class="relative w-full max-w-[420px] h-screen md:h-[860px] bg-background border-0 md:border-[10px] md:border-slate-800 md:rounded-[40px] phone-shadow flex flex-col overflow-hidden max-md:w-full max-md:h-screen">
+    
+    <!-- Smartphone Notch / Status Bar (Hidden on Mobile) -->
+    <div class="bg-surface border-b border-outline-variant/10 px-6 pt-3 pb-2 flex justify-between items-center text-xs text-on-surface-variant font-bold select-none max-md:hidden z-50">
+      <span>오전 9:41</span>
+      <!-- Notch Element -->
+      <div class="w-28 h-4 bg-slate-800 rounded-b-xl absolute top-0 left-1/2 -translate-x-1/2"></div>
+      <div class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[14px]">signal_cellular_4_bar</span>
+        <span class="material-symbols-outlined text-[14px]">wifi</span>
+        <span class="material-symbols-outlined text-[14px]">battery_charging_full</span>
+      </div>
+    </div>
+    
+    <!-- Header (Dynamic Title depending on selected page) -->
+    <header class="bg-surface border-b border-outline-variant/20 shadow-sm z-40 relative">
+      <div class="flex justify-between items-center w-full px-margin-mobile h-touch-target-min">
+        <div class="flex items-center gap-2">
+          <!-- Small rounded app logo -->
+          <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant/30">
+            <img alt="Yagssoog Logo" class="w-full h-full object-cover" src="assets/YakSsoog_logo_500x500.png" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
+          </div>
+          <h1 class="font-headline-md text-headline-md-mobile text-primary font-bold" id="app-header-title">약쏘옥</h1>
+        </div>
+        <div class="flex flex-col items-end">
+          <span class="text-on-surface-variant font-semibold text-xs" id="app-header-date">10월 24일 (목)</span>
+          <span class="text-outline text-[10px] font-medium" id="app-header-lunar">음력 —</span>
+          <span class="text-secondary font-bold text-[11px]" id="app-header-status">오늘 복용 현황: 2/3 완료</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Viewport Scrollable Area -->
+    <main class="flex-grow overflow-y-auto bg-background transition-all duration-200" id="main-viewport">
+      
+      <!-- ==================== VIEW 1: HOME (오늘 복용 일정) ==================== -->
+      <div class="view-content active p-6 space-y-6" id="view-home">
+        <!-- Section Header -->
+        <div class="flex items-center justify-between">
+          <h2 class="font-headline-md text-headline-md-mobile text-on-surface">오늘 복용 일정</h2>
+          <div class="bg-tertiary-container/30 px-4 py-1.5 rounded-full border border-tertiary/10">
+            <span class="text-on-tertiary-container font-bold text-sm" id="badge-date">2024.10.24</span>
+          </div>
+        </div>
+        
+        <!-- Medication Cards Container -->
+        <div class="space-y-4" id="med-list-container">
+          <!-- Dynamic cards will be rendered here by JS -->
+        </div>
+
+        <!-- Expiry Warning Alert -->
+        <div class="hidden flex items-center gap-3 px-4 py-3.5 bg-error-container/20 rounded-2xl border border-error/10" id="expiry-warning-banner">
+          <span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+          <p class="text-on-error-container font-bold text-sm">유통기한 임박 약이 있습니다!</p>
+        </div>
+
+        <!-- FAB/Primary Action: Add Medicine -->
+        <button class="btn-active-depress w-full h-touch-target-min bg-primary-container text-on-primary-container rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary-container/10 active:scale-95 transition-all duration-150" onclick="switchTab('scan')">
+          <span class="material-symbols-outlined">add</span>
+          약 추가하기
+          <span class="material-symbols-outlined text-sm">north_east</span>
+        </button>
+      </div>
+
+      <!-- ==================== VIEW 2: SCAN (약 스캔 화면) ==================== -->
+      <div class="view-content" id="view-scan">
+        <!-- Simulated Camera Viewfinder -->
+        <section class="relative w-full aspect-[4/5] bg-black overflow-hidden select-none">
+          <div class="absolute inset-0 z-0 overflow-hidden">
+            <img id="scan-viewfinder-img" class="w-full h-full object-cover opacity-70 scale-110 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYNCpfAbaZOphenDcJaBP12aVnYmcPPdYxgX_Azpc8_eMFLcelIwTU09NNqE_xKqSbg8Nm0deZQlj4KJkvjhK-_pkLj34MDE46mXw59OaaANvkzYb6gDsWEYFrjBf-9xUS4hmHdt34Fuy-d-2zIh_9qn9WNwtl_m53Wi7z4QCd2y2Mh9nQCTAJsuxZ--AWLw4n2Jc0QUCxXYZ-MNSIPumFmNEVotBCHKw0QveQDmjFqldnx-GmfDQlyT13pl_SwZPGGKxnLvG8_mjk"/>
+          </div>
+          <!-- Scanning Overlay Indicators -->
+          <div class="absolute inset-0 flex flex-col justify-between p-4 z-10 pointer-events-none">
+            <div class="flex justify-between items-center">
+              <span class="bg-black/60 text-white text-[11px] px-3 py-1 rounded-full font-bold">스캔 모드: 낱알/바코드 식별</span>
+              <span class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>실시간
+              </span>
+            </div>
+            
+            <!-- Targeting Box -->
+            <div class="self-center w-56 h-56 border-2 border-primary-container/70 rounded-3xl relative my-auto pointer-events-none">
+              <!-- Laser Scanner Line -->
+              <div id="scan-laser-line" class="scanner-line absolute left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary-container to-transparent blur-sm"></div>
+              <!-- Corner Brackets -->
+              <div class="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-primary-container rounded-tl-xl"></div>
+              <div class="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-primary-container rounded-tr-xl"></div>
+              <div class="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-primary-container rounded-bl-xl"></div>
+              <div class="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-primary-container rounded-br-xl"></div>
+            </div>
+            
+            <div class="text-center text-white/90 text-xs py-2 bg-black/40 backdrop-blur-md rounded-xl">
+              포장지 바코드 또는 약 알을 인식 영역에 놓아주세요.
+            </div>
+          </div>
+        </section>
+
+        <!-- Scanning Actions and Database Search -->
+        <section class="p-6 space-y-5" id="scan-controls-section">
+          <!-- Selection buttons for simulation -->
+          <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 shadow-sm space-y-4">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">help</span>
+              <h3 class="font-label-lg text-on-surface">모의 약 인식 스캐너</h3>
+            </div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              모바일 기기 없이도 스캔 결과를 미리 확인해 볼 수 있습니다. 아래 샘플 약 중 하나를 클릭하면 자동으로 스캔 인식이 진행됩니다.
+            </p>
+            <div class="grid grid-cols-3 gap-2.5">
+              <button class="btn-active-depress py-3 px-1.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary-container/20 active:scale-95 transition-all flex flex-col items-center gap-1.5" onclick="simulateScan(1)">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-outline-variant/20">💊</div>
+                <span>고혈압약</span>
+              </button>
+              <button class="btn-active-depress py-3 px-1.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary-container/20 active:scale-95 transition-all flex flex-col items-center gap-1.5" onclick="simulateScan(2)">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-outline-variant/20">🍬</div>
+                <span>당뇨약</span>
+              </button>
+              <button class="btn-active-depress py-3 px-1.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-xs font-bold text-on-surface hover:bg-primary-container/20 active:scale-95 transition-all flex flex-col items-center gap-1.5" onclick="simulateScan(3)">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-outline-variant/20">☀️</div>
+                <span>비타민D</span>
+              </button>
+            </div>
+            
+            <!-- Manual API Lookup Tool -->
+            <div class="pt-3.5 border-t border-outline-variant/20 space-y-2">
+              <label class="block text-xs font-bold text-on-surface-variant">🔍 식약처 낱알식별 DB 검색</label>
+              <div class="flex gap-2">
+                <input type="text" id="api-search-input" placeholder="약품명 또는 바코드 번호 입력" class="flex-1 text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+                <button onclick="queryPublicAPI()" class="btn-active-depress bg-primary text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-1 shadow-sm active:scale-95 transition-all">
+                  <span class="material-symbols-outlined text-sm">search</span>조회
+                </button>
+              </div>
+              <p class="text-[10px] text-outline">※ 공공데이터 API key가 유효하지 않거나 CORS 오류 시 모의 데이터로 대체됩니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Scan Result Drawer Container -->
+        <section class="hidden px-6 pb-6" id="scan-result-container">
+          <!-- Inject dynamic result card via JS -->
+        </section>
+      </div>
+
+      <!-- ==================== VIEW 3: ALARM (알람 설정 화면) ==================== -->
+      <div class="view-content p-6 space-y-6" id="view-alarm">
+        <!-- Section Header -->
+        <div>
+          <h2 class="font-headline-lg text-headline-lg-mobile text-on-surface mb-1">복약 알림 설정</h2>
+          <p class="text-on-surface-variant text-sm">놓치지 않도록 소리와 시간을 확인해주세요.</p>
+        </div>
+        
+        <!-- Alarm Card List Container -->
+        <div class="space-y-5" id="alarm-list-container">
+          <!-- Dynamic alarm cards injected here by JS -->
+        </div>
+
+        <!-- Float FAB for New Alarm creation -->
+        <div class="flex justify-end pt-2">
+          <button onclick="createNewAlarm()" class="btn-active-depress w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-transform">
+            <span class="material-symbols-outlined text-[32px]">add</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== VIEW 4: SETTINGS (설정 화면) ==================== -->
+      <div class="view-content p-6 space-y-6" id="view-settings">
+        
+        <!-- Section: Font Scale -->
+        <section class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-10 h-10 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant">
+              <span class="material-symbols-outlined text-2xl">format_size</span>
+            </div>
+            <div>
+              <h2 class="font-headline-md text-headline-md-mobile text-on-surface">글자 크기 조절</h2>
+              <p class="font-body-md text-on-surface-variant">화면의 글자를 더 크게 볼 수 있습니다.</p>
+            </div>
+          </div>
+          <div class="space-y-4 px-2">
+            <input class="w-full" id="fontSizeSlider" max="3" min="1" step="1" type="range" value="2"/>
+            <div class="flex justify-between font-label-lg text-on-surface-variant pt-2">
+              <span class="text-[14px]">보통</span>
+              <span class="text-[18px]">크게</span>
+              <span class="text-[24px] font-bold text-primary">매우 크게</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Guardian Connection (stitch _1: chevron navigation style) -->
+        <section class="settings-card p-6 shadow-sm flex items-center justify-between cursor-pointer" onclick="toggleGuardianAlert()">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+              <span class="material-symbols-outlined" style="font-size:32px;">family_restroom</span>
+            </div>
+            <div>
+              <h2 class="font-headline-md text-headline-md-mobile text-on-surface">보호자 연결</h2>
+              <p class="font-body-md text-on-surface-variant">자녀나 보호자에게 알림을 보냅니다.</p>
+              <p class="text-xs text-outline mt-1">약 복용 체크 후 30분 내 미확인 시 자동 발송</p>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-outline">chevron_right</span>
+        </section>
+
+        <!-- Guardian phone input (hidden by default) -->
+        <div id="guardian-phone-container" class="hidden settings-card p-5 shadow-sm space-y-3">
+          <p class="font-label-lg text-on-surface-variant">보호자 연락처</p>
+          <div class="flex gap-2">
+            <input type="tel" id="guardian-phone-input" placeholder="010-0000-0000" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+            <button onclick="saveGuardianPhone()" class="btn-active-depress bg-primary text-on-primary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+          </div>
+        </div>
+
+        <!-- Section: Notification Repeat (stitch _1 spec) -->
+        <section class="settings-card p-6 shadow-sm flex items-center justify-between cursor-pointer">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant">
+              <span class="material-symbols-outlined" style="font-size:32px;">notifications_active</span>
+            </div>
+            <div>
+              <h2 class="font-headline-md text-headline-md-mobile text-on-surface">알림 반복 설정</h2>
+              <p class="font-body-md text-on-surface-variant">약을 드실 때까지 다시 알려드립니다.</p>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-outline">chevron_right</span>
+        </section>
+
+        <!-- Section: API Key -->
+        <section class="settings-card p-6 shadow-sm space-y-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant">
+              <span class="material-symbols-outlined" style="font-size:32px;">api</span>
+            </div>
+            <div>
+              <h2 class="font-headline-md text-headline-md-mobile text-on-surface">식약처 API 설정</h2>
+              <p class="font-body-md text-on-surface-variant">e약은요 공공데이터 인증키를 설정합니다.</p>
+            </div>
+          </div>
+          <div class="space-y-2 px-2">
+            <label class="block font-label-lg text-on-surface-variant">공공데이터 인증키 (Service Key)</label>
+            <div class="flex gap-2">
+              <input type="password" id="api-key-input" placeholder="인증키(Service Key) 입력" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+              <button onclick="saveApiKey()" class="btn-active-depress bg-secondary text-on-secondary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Backup & Restore -->
+        <section class="space-y-4" id="backup-restore-section">
+          <h3 class="font-label-xl text-on-surface-variant px-2">디자인 백업 및 복구</h3>
+          <div class="settings-card p-5 shadow-sm space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant">
+                <span class="material-symbols-outlined" style="font-size:32px;">backup</span>
+              </div>
+              <div class="flex-1">
+                <h2 class="font-headline-md text-headline-md-mobile text-on-surface">디자인 백업</h2>
+                <p class="font-body-md text-on-surface-variant">디자인 소스 및 설정을 로컬에 백업합니다.</p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="runLocalBackup()" class="btn-active-depress py-3 bg-primary text-on-primary font-bold rounded-xl active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 text-sm">
+                <span class="material-symbols-outlined text-[18px]">cloud_upload</span> 백업 수행
+              </button>
+              <button id="toggle-restore-btn" onclick="toggleBackupList()" class="btn-active-depress py-3 border border-primary text-primary font-bold rounded-xl active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 text-sm">
+                <span class="material-symbols-outlined text-[18px]">history</span> 복구 목록
+              </button>
+            </div>
+
+            <!-- Expandable Backup List Container -->
+            <div id="backup-list-container" class="hidden border-t border-outline-variant/30 pt-4 space-y-3">
+              <div class="flex justify-between items-center">
+                <p class="font-label-lg text-on-surface-variant">백업 파일 목록</p>
+                <button onclick="loadBackupList()" class="text-xs text-primary flex items-center gap-0.5">
+                  <span class="material-symbols-outlined text-[12px]">refresh</span> 새로고침
+                </button>
+              </div>
+              <div id="backup-items" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                <p class="text-xs text-outline text-center py-4">백업을 불러오는 중...</p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-outline-variant/20 text-[11px] text-outline space-y-1">
+              <p class="break-all">📂 백업장소: D:\Antigravity\YakSsoog\backups</p>
+              <p id="last-backup-info">최근 백업: --:--</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Help & Info (stitch _1 spec) -->
+        <section class="space-y-4">
+          <h3 class="font-label-xl text-on-surface-variant px-2">도움말 및 정보</h3>
+          <div class="settings-card divide-y divide-outline-variant/30 overflow-hidden">
+            <a class="flex items-center justify-between p-5 hover:bg-surface-container-high transition-colors" href="https://www.data.go.kr" target="_blank">
+              <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-secondary">info</span>
+                <span class="font-body-lg text-on-surface">공식 정보 출처 (data.go.kr)</span>
+              </div>
+              <span class="material-symbols-outlined text-outline">open_in_new</span>
+            </a>
+            <a class="flex items-center justify-between p-5 hover:bg-surface-container-high transition-colors" href="https://nedrug.mfds.go.kr" target="_blank">
+              <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-secondary">verified_user</span>
+                <span class="font-body-lg text-on-surface">식품의약품안전처 (e약은요)</span>
+              </div>
+              <span class="material-symbols-outlined text-outline">open_in_new</span>
+            </a>
+            <button class="w-full flex items-center justify-between p-5 hover:bg-surface-container-high transition-colors" onclick="resetWholeApp()">
+              <div class="flex items-center gap-4">
+                <span class="material-symbols-outlined text-error">delete_forever</span>
+                <span class="font-body-lg text-error">애플리케이션 초기화</span>
+              </div>
+              <span class="material-symbols-outlined text-outline">chevron_right</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Version Info (stitch _1 spec) -->
+        <div class="text-center pt-8 pb-4">
+          <p class="font-body-md text-outline">약쏙옥 버전 1.2.0</p>
+          <button class="mt-4 text-error font-label-lg underline" onclick="resetWholeApp()">로그아웃</button>
+        </div>
+      </div>
+      
+    </main>
+
+    <!-- Bottom Navigation Bar (Sticker Navigation) -->
+    <nav class="absolute bottom-0 left-0 w-full flex justify-around items-center px-4 pb-safe bg-surface-container-low h-[80px] z-50 border-t border-outline-variant/20 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] select-none">
+      
+      <!-- Nav Item 1: Home -->
+      <button class="nav-btn flex flex-col items-center justify-center transition-all duration-150" id="nav-btn-home" onclick="switchTab('home')">
+        <span class="material-symbols-outlined text-2xl">home</span>
+        <span class="text-xs mt-0.5">홈</span>
+      </button>
+      
+      <!-- Nav Item 2: Scan -->
+      <button class="nav-btn flex flex-col items-center justify-center transition-all duration-150" id="nav-btn-scan" onclick="switchTab('scan')">
+        <span class="material-symbols-outlined text-2xl">document_scanner</span>
+        <span class="text-xs mt-0.5">스캔</span>
+      </button>
+      
+      <!-- Nav Item 3: Alarm -->
+      <button class="nav-btn flex flex-col items-center justify-center transition-all duration-150" id="nav-btn-alarm" onclick="switchTab('alarm')">
+        <span class="material-symbols-outlined text-2xl">notifications</span>
+        <span class="text-xs mt-0.5">알람</span>
+      </button>
+      
+      <!-- Nav Item 4: Settings -->
+      <button class="nav-btn flex flex-col items-center justify-center transition-all duration-150" id="nav-btn-settings" onclick="switchTab('settings')">
+        <span class="material-symbols-outlined text-2xl">settings</span>
+        <span class="text-xs mt-0.5">설정</span>
+      </button>
+      
+    </nav>
+    
+  </div>
+
+  <!-- Load script file -->
+  <script src="app.js"></script>
+</body>
+</html>
