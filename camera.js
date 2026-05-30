@@ -74,15 +74,60 @@
 
       // Launch HTML5 QR Code Camera
       try {
-        html5QrcodeScanner = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        html5QrcodeScanner = new Html5Qrcode("reader", {
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.DATA_MATRIX,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.CODE_39
+          ]
+        });
+
+        // Set higher frame rate and dynamic scanner box size
+        const config = { 
+          fps: 20, 
+          qrbox: function(width, height) {
+            const size = Math.min(width, height) * 0.75;
+            return { width: size, height: size };
+          },
+          aspectRatio: 1.0
+        };
         
         await html5QrcodeScanner.start(
-          { facingMode: "environment" }, 
+          { 
+            facingMode: "environment",
+            width: { min: 1280, ideal: 1920 },
+            height: { min: 720, ideal: 1080 }
+          }, 
           config,
           onScanSuccess,
           onScanFailure
         );
+
+        // Apply advanced autofocus constraints to clear macro blur
+        setTimeout(async () => {
+          const videoEl = document.querySelector('#reader video');
+          if (videoEl && videoEl.srcObject) {
+            const track = videoEl.srcObject.getVideoTracks()[0];
+            if (track) {
+              const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+              const advancedConstraints = {};
+              if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+                advancedConstraints.focusMode = 'continuous';
+              }
+              if (Object.keys(advancedConstraints).length > 0) {
+                try {
+                  await track.applyConstraints({ advanced: [advancedConstraints] });
+                } catch (e) {
+                  console.warn("Failed to apply advanced camera focus", e);
+                }
+              }
+            }
+          }
+        }, 1000);
+
       } catch (err) {
         console.warn("Camera startup failed, falling back to simulated scan mode:", err);
         // Switch to Simulator Mode automatically to prevent user frustration
