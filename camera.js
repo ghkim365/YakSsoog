@@ -245,26 +245,63 @@
 
     showToast("📸 사진 분석 중...");
     
-    // Create a temporary Html5Qrcode instance if not already running
-    let temporaryScanner = html5QrcodeScanner;
-    let createdTemp = false;
-    
-    if (!temporaryScanner) {
-      // Create a temporary hidden div or reuse reader
-      let tempReader = document.getElementById('reader');
-      if (!tempReader) {
-        tempReader = document.createElement('div');
-        tempReader.id = 'reader';
-        tempReader.style.display = 'none';
-        document.body.appendChild(tempReader);
-        createdTemp = true;
-      }
-      temporaryScanner = new Html5Qrcode("reader");
-    }
+    // Canvas Helper to resize high-resolution smartphone photos down to 800px max dimension
+    const resizeImageForDecoding = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const maxDim = 800; // Optimal dimension for web-based barcode decoders
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            
+            const canvas = document.createElement("canvas");
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, w, h);
+            
+            canvas.toBlob((blob) => {
+              const resizedFile = new File([blob], file.name, { type: "image/jpeg" });
+              resolve(resizedFile);
+            }, "image/jpeg", 0.9);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    };
 
     try {
-      const decodedText = await temporaryScanner.scanFile(file, true);
-      // Success! Play sound/vibration and process code
+      const optimizedFile = await resizeImageForDecoding(file);
+      
+      let temporaryScanner = html5QrcodeScanner;
+      let createdTemp = false;
+      
+      if (!temporaryScanner) {
+        let tempReader = document.getElementById('reader');
+        if (!tempReader) {
+          tempReader = document.createElement('div');
+          tempReader.id = 'reader';
+          tempReader.style.display = 'none';
+          document.body.appendChild(tempReader);
+          createdTemp = true;
+        }
+        temporaryScanner = new Html5Qrcode("reader");
+      }
+
+      const decodedText = await temporaryScanner.scanFile(optimizedFile, true);
+      
       if (window.navigator.vibrate) {
         window.navigator.vibrate(100);
       }
@@ -279,16 +316,8 @@
       }
     } catch (err) {
       console.warn("Failed to scan file:", err);
-      alert("바코드를 인식하지 못했습니다. 더 밝고 초점이 또렷하게 인쇄된 바코드 영역만 잘 나오도록 촬영해 주세요.");
+      alert("바코드를 인식하지 못했습니다.\n\n⚠️ 주의: 알약 자체(낱알)나 바코드가 없는 부분은 인식할 수 없습니다. 상자/포장지에 인쇄된 격자무늬(2D) 또는 줄무늬(1D) 바코드 영역만 밝고 또렷하게 나오도록 찍어서 올려주세요.");
     } finally {
-      // Cleanup if temporary was created
-      if (createdTemp && temporaryScanner) {
-        try {
-          temporaryScanner.clear();
-        } catch (e) {}
-        const tempReader = document.getElementById('reader');
-        if (tempReader) tempReader.remove();
-      }
       // Reset file input so same file can be uploaded again
       event.target.value = '';
     }
