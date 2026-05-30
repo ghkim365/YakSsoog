@@ -85,22 +85,23 @@
           ]
         });
 
-        // Set higher frame rate and dynamic scanner box size
+        // Configure config with videoConstraints for high resolution compatibility
         const config = { 
           fps: 20, 
           qrbox: function(width, height) {
             const size = Math.min(width, height) * 0.75;
             return { width: size, height: size };
           },
-          aspectRatio: 1.0
+          aspectRatio: 1.0,
+          videoConstraints: {
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
         };
         
         await html5QrcodeScanner.start(
-          { 
-            facingMode: "environment",
-            width: { min: 1280, ideal: 1920 },
-            height: { min: 720, ideal: 1080 }
-          }, 
+          { facingMode: "environment" }, 
           config,
           onScanSuccess,
           onScanFailure
@@ -130,7 +131,7 @@
 
       } catch (err) {
         console.warn("Camera startup failed, falling back to simulated scan mode:", err);
-        // Switch to Simulator Mode automatically to prevent user frustration
+        alert("카메라 연결 실패: " + err.message + "\n\n체험(가상) 모드로 전환됩니다. 카메라 권한 허용 여부 또는 HTTPS 배포 주소로 접속하셨는지 확인해 주세요.");
         isFallbackMode = true;
         startFallbackScanner(readerDiv);
       }
