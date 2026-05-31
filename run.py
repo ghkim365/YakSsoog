@@ -6,6 +6,10 @@ import os
 import json
 import shutil
 import datetime
+import urllib.request
+import urllib.parse
+import re
+import html
 
 # Configure stdout to use UTF-8 to prevent encoding crashes on Windows (CP949)
 if hasattr(sys.stdout, 'reconfigure'):
@@ -42,14 +46,179 @@ def get_formatted_timestamp():
     
     return f"{year}-{month}{day}_{hour_str}{min_str}{ampm}"
 
-def copy_file_or_dir(src, dest):
+def copy_file_or_dir(src, dst):
+    """Robustly copies a file or directory from src to dst."""
+    if not os.path.exists(src):
+        return
+    if os.path.isdir(src):
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst)
+    else:
+        # Ensure destination directory exists
+        dst_dir = os.path.dirname(dst)
+        if dst_dir:
+            os.makedirs(dst_dir, exist_ok=True)
+        shutil.copy2(src, dst)
+
+def scrape_naver_medicine(query):
     try:
-        if os.path.isdir(src):
-            shutil.copytree(src, dest, dirs_exist_ok=True)
-        elif os.path.exists(src):
-            shutil.copy2(src, dest)
+        # 1. Search page
+        search_url = f"https://terms.naver.com/medicineSearch.naver?mode=nameSearch&query={urllib.parse.quote(query)}"
+        req = urllib.request.Request(search_url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            search_html = html.unescape(response.read().decode('utf-8'))
+            
+        # Find first /entry.naver?docId=...
+        entry_match = re.search(r'href="(/entry\.naver\?docId=(\d+)[^"]*)"', search_html)
+        if not entry_match:
+            return None
+            
+        doc_id = entry_match.group(2)
+        detail_url = f"https://terms.naver.com/entry.naver?docId={doc_id}&cid=51000&categoryId=51000"
+        
+        # 2. Detail page
+        req_detail = urllib.request.Request(detail_url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req_detail, timeout=5) as response_detail:
+            detail_html = html.unescape(response_detail.read().decode('utf-8'))
+            
+        # Parse Title
+        title = "알 수 없음"
+        title_match = re.search(r'<title>(.*?)</title>', detail_html, re.I)
+        if title_match:
+            title = title_match.group(1).split(':')[0].strip()
+        else:
+            title_match_h2 = re.search(r'<h2 class="title">(.*?)</h2>', detail_html, re.S)
+            if title_match_h2:
+                title = re.sub(r'<[^>]+>', '', title_match_h2.group(1)).strip()
+                
+        # Parse Image URL
+        image_url = ""
+        img_match = re.search(r'imageUrl=([^&"\']+)', detail_html)
+        if img_match:
+            image_url = urllib.parse.unquote(img_match.group(1))
+            
+        # Parse Manufacturer (제조사)
+        manufacturer = "알 수 없음"
+        manuf_match = re.search(r'(?:제조/수입사|제조사|제조/수입업체).*?</th>\s*<td>\s*(.*?)\s*</td>', detail_html, re.S)
+        if manuf_match:
+            manufacturer = re.sub(r'<[^>]+>', '', manuf_match.group(1)).strip()
+            
+        # Parse Meta Description (for efficacy and usage)
+        efficacy = ""
+        usage = ""
+        meta_desc = re.search(r'<meta[^>]*?property="og:description"[^>]*?content="([^"]+)"', detail_html)
+        if not meta_desc:
+            meta_desc = re.search(r'<meta[^>]*?content="([^"]+)"[^>]*?property="og:description"', detail_html)
+            
+        if meta_desc:
+            desc_content = meta_desc.group(1)
+            
+            # Extract Efficacy (효능효과)
+            eff_match = re.search(r'\[효능효과\]\s*(.*?)(?=\s*\[|$)', desc_content)
+            if eff_match:
+                efficacy = eff_match.group(1).strip()
+                
+            # Extract Usage (용법용량)
+            use_match = re.search(r'\[용법용량\]\s*(.*?)(?=\s*\[|$)', desc_content)
+            if use_match:
+                usage = use_match.group(1).strip()
+                
+        return {
+            "ITEM_SEQ": doc_id,
+            "ITEM_NAME": title,
+            "ENTP_NAME": manufacturer,
+            "ITEM_IMAGE": image_url,
+            "EFFICIENCY_OUTLINE": efficacy,
+            "USE_METHOD_OUTLINE": usage,
+            "UPDATE_DATE": datetime.datetime.now().strftime("%Y%m%d")
+        }
     except Exception as e:
-        print(f"Failed to copy {src} to {dest}: {e}")
+        print(f"Error scraping Naver medicine: {e}")
+        return None
+
+def scrape_url_detail(url):
+    """Scrape a specific Naver Terms or health.kr medicine detail page URL."""
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            page_html = html.unescape(resp.read().decode('utf-8'))
+
+        result = {
+            "name": "", "manufacturer": "", "image_url": "",
+            "efficacy": "", "usage": "", "source": url
+        }
+
+        # ── Naver Terms detail page ──────────────────────────────────────────
+        if 'terms.naver.com' in url:
+            # Title
+            title_m = re.search(r'<title>(.*?)</title>', page_html, re.I)
+            if title_m:
+                result["name"] = title_m.group(1).split(':')[0].strip()
+
+            # Image
+            img_m = re.search(r'imageUrl=([^&"\']+)', page_html)
+            if img_m:
+                result["image_url"] = urllib.parse.unquote(img_m.group(1))
+
+            # Manufacturer
+            manuf_m = re.search(
+                r'(?:제조/수입사|제조사|제조/수입업체).*?</th>\s*<td>\s*(.*?)\s*</td>',
+                page_html, re.S)
+            if manuf_m:
+                result["manufacturer"] = re.sub(r'<[^>]+>', '', manuf_m.group(1)).strip()
+
+            # Efficacy & Usage from og:description
+            meta_m = re.search(
+                r'<meta[^>]*?property="og:description"[^>]*?content="([^"]+)"', page_html)
+            if not meta_m:
+                meta_m = re.search(
+                    r'<meta[^>]*?content="([^"]+)"[^>]*?property="og:description"', page_html)
+            if meta_m:
+                desc = meta_m.group(1)
+                eff_m = re.search(r'\[효능효과\]\s*(.*?)(?=\s*\[|$)', desc)
+                use_m = re.search(r'\[용법용량\]\s*(.*?)(?=\s*\[|$)', desc)
+                if eff_m: result["efficacy"] = eff_m.group(1).strip()
+                if use_m: result["usage"]    = use_m.group(1).strip()
+
+        # ── health.kr page ───────────────────────────────────────────────────
+        elif 'health.kr' in url:
+            # Drug name from h2 / title
+            name_m = re.search(r'<h2[^>]*class="[^"]*drug[^"]*"[^>]*>(.*?)</h2>', page_html, re.S)
+            if not name_m:
+                name_m = re.search(r'<title>(.*?)</title>', page_html, re.I)
+            if name_m:
+                result["name"] = re.sub(r'<[^>]+>', '', name_m.group(1)).split('|')[0].strip()
+
+            # Manufacturer
+            manuf_m = re.search(
+                r'(?:업체명|제조사).*?<td[^>]*>(.*?)</td>', page_html, re.S)
+            if manuf_m:
+                result["manufacturer"] = re.sub(r'<[^>]+>', '', manuf_m.group(1)).strip()
+
+            # Image
+            img_m = re.search(r'<img[^>]+id="imgDrug"[^>]+src="([^"]+)"', page_html)
+            if img_m:
+                result["image_url"] = img_m.group(1)
+
+            # Efficacy
+            eff_m = re.search(
+                r'(?:효능효과|이 약의 효능).*?<td[^>]*>(.*?)</td>', page_html, re.S)
+            if eff_m:
+                result["efficacy"] = re.sub(r'<[^>]+>', '', eff_m.group(1)).strip()
+
+            # Usage
+            use_m = re.search(
+                r'(?:용법용량|이 약의 용법).*?<td[^>]*>(.*?)</td>', page_html, re.S)
+            if use_m:
+                result["usage"] = re.sub(r'<[^>]+>', '', use_m.group(1)).strip()
+
+        return result if result["name"] else None
+
+    except Exception as e:
+        print(f"[scrape_url_detail] Error: {e}")
+        return None
 
 class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -300,40 +469,116 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 if not env_key:
                     env_key = os.environ.get("YAKSSOOG_API_KEY", "")
                 
-                if not env_key:
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"success": False, "error": "Local .env file does not contain YAKSSOOG_API_KEY."}, ensure_ascii=False).encode('utf-8'))
-                    return
-
-                # Perform actual API request server-side
-                final_key = env_key if "%" in env_key else quote(env_key)
-                url = f"https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey={final_key}&item_name={quote(query)}&pageNo=1&numOfRows=1&type=json"
+                api_success = False
+                res_body = None
                 
-                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-                try:
-                    with urllib.request.urlopen(req, timeout=10) as response:
-                        res_body = response.read()
-                except urllib.error.HTTPError as he:
-                    error_details = he.read().decode('utf-8', errors='ignore')
-                    self.send_response(he.code)
+                if env_key:
+                    try:
+                        final_key = env_key if "%" in env_key else quote(env_key)
+                        url = f"https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey={final_key}&item_name={quote(query)}&pageNo=1&numOfRows=1&type=json"
+                        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                        with urllib.request.urlopen(req, timeout=5) as response:
+                            res_body = response.read()
+                            
+                        # Parse to check if items found
+                        data = json.loads(res_body.decode('utf-8'))
+                        total_count = data.get("body", {}).get("totalCount", 0)
+                        if total_count > 0:
+                            api_success = True
+                    except Exception as e:
+                        print(f"[API Error, trying Naver fallback] {e}")
+                
+                if api_success and res_body:
+                    self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.end_headers()
-                    self.wfile.write(json.dumps({
-                        "success": False, 
-                        "error": f"HTTP Error {he.code}", 
-                        "details": error_details
-                    }, ensure_ascii=False).encode('utf-8'))
+                    self.wfile.write(res_body)
                     return
-                    
+                
+                # Fallback to Naver scraping
+                print(f"[Naver Scraper] Querying fallback for '{query}'...")
+                naver_data = scrape_naver_medicine(query)
+                if naver_data:
+                    mfds_mock = {
+                        "header": {
+                            "resultCode": "00",
+                            "resultMsg": "NORMAL SERVICE (Naver Fallback)."
+                        },
+                        "body": {
+                            "pageNo": 1,
+                            "totalCount": 1,
+                            "numOfRows": 1,
+                            "items": [
+                                {
+                                    "ITEM_SEQ": naver_data["ITEM_SEQ"],
+                                    "ITEM_NAME": naver_data["ITEM_NAME"],
+                                    "ENTP_NAME": naver_data["ENTP_NAME"],
+                                    "ITEM_IMAGE": naver_data["ITEM_IMAGE"],
+                                    "EFFICIENCY_OUTLINE": naver_data["EFFICIENCY_OUTLINE"],
+                                    "USE_METHOD_OUTLINE": naver_data["USE_METHOD_OUTLINE"],
+                                    "UPDATE_DATE": naver_data["UPDATE_DATE"],
+                                    "CRA_RSTRCN_OUTLINE": ""
+                                }
+                            ]
+                        }
+                    }
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps(mfds_mock, ensure_ascii=False).encode('utf-8'))
+                    return
+                
+                # If everything fails, return empty result
+                empty_response = {
+                    "header": {
+                        "resultCode": "00",
+                        "resultMsg": "NO DATA FOUND"
+                    },
+                    "body": {
+                        "pageNo": 1,
+                        "totalCount": 0,
+                        "numOfRows": 1,
+                        "items": []
+                    }
+                }
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()
-                self.wfile.write(res_body)
+                self.wfile.write(json.dumps(empty_response, ensure_ascii=False).encode('utf-8'))
             except Exception as e:
                 import traceback
                 traceback.print_exc()
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode('utf-8'))
+        # 6. SCRAPE SPECIFIC URL (Naver Terms or health.kr)
+        elif self.path.startswith('/api/scrape_url'):
+            try:
+                from urllib.parse import urlparse, parse_qs
+                parsed = urlparse(self.path)
+                query_params = parse_qs(parsed.query)
+                target_url = query_params.get('url', [''])[0]
+
+                if not target_url:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "url parameter is required"}, ensure_ascii=False).encode('utf-8'))
+                    return
+
+                result = scrape_url_detail(target_url)
+                if result:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": True, "data": result}, ensure_ascii=False).encode('utf-8'))
+                else:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "해당 URL에서 의약품 정보를 찾을 수 없습니다."}, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')
                 self.end_headers()

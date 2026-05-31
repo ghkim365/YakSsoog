@@ -77,7 +77,8 @@ const DEFAULT_ALARMS = [
 let medications = [];
 let alarms = [];
 let activeTab = 'home';
-let currentFontScale = 2; // Default: 2 (Large)
+let currentFontScale = 17; // Default: 17px
+let currentFontFamily = 'Pretendard';
 let repeatSettings = { enabled: false, interval: 10, count: 5 };
 
 // Initialize App
@@ -182,11 +183,38 @@ function loadAppState() {
   
   const savedFontScale = localStorage.getItem('yagssoog_font_scale');
   if (savedFontScale) {
-    currentFontScale = parseInt(savedFontScale);
+    let scaleVal = parseInt(savedFontScale);
+    // Backward compatibility mappings
+    if (scaleVal === 1) scaleVal = 15;
+    else if (scaleVal === 2) scaleVal = 17;
+    else if (scaleVal === 3) scaleVal = 20;
+    else if (scaleVal >= 80 && scaleVal <= 150) {
+      // If it was stored as a percentage, convert to px (e.g. 106% -> 17px)
+      scaleVal = Math.round((scaleVal / 100) * 16);
+    }
+    
+    // Clamp to safe px range
+    if (scaleVal < 12) scaleVal = 12;
+    if (scaleVal > 24) scaleVal = 24;
+    
+    currentFontScale = scaleVal;
+    
     const slider = document.getElementById('fontSizeSlider');
     if (slider) slider.value = currentFontScale;
+    const numInput = document.getElementById('fontSizeInput');
+    if (numInput) numInput.value = currentFontScale;
+  } else {
+    currentFontScale = 17;
   }
   applyFontScale(currentFontScale);
+
+  const savedFontFamily = localStorage.getItem('yagssoog_font_family');
+  if (savedFontFamily) {
+    currentFontFamily = savedFontFamily;
+  } else {
+    currentFontFamily = 'Pretendard';
+  }
+  applyFontFamily(currentFontFamily);
 
   // Load Guardian configuration state
   const guardianEnabled = localStorage.getItem('yagssoog_guardian_enabled') === 'true';
@@ -237,14 +265,43 @@ function saveAppState() {
 
 // Apply font scaling via html root font-size so Tailwind rem classes all scale together
 // Scale 1 (보통): 15px  |  Scale 2 (크게): 17px  |  Scale 3 (매우 크게): 20px
-const FONT_SCALE_MAP = { 1: '15px', 2: '17px', 3: '20px' };
+window.applyFontScale = function(pxValue) {
+  pxValue = Math.max(12, Math.min(24, parseInt(pxValue) || 17));
+  document.documentElement.style.fontSize = `${pxValue}px`;
+  currentFontScale = pxValue;
+  localStorage.setItem('yagssoog_font_scale', pxValue);
+  
+  // Sync slider and number input elements
+  const slider = document.getElementById('fontSizeSlider');
+  const numInput = document.getElementById('fontSizeInput');
+  if (slider && parseInt(slider.value) !== pxValue) {
+    slider.value = pxValue;
+  }
+  if (numInput && parseInt(numInput.value) !== pxValue) {
+    numInput.value = pxValue;
+  }
+};
 
-function applyFontScale(scale) {
-  const size = FONT_SCALE_MAP[scale] || '17px';
-  document.documentElement.style.fontSize = size;
-  currentFontScale = scale;
-  localStorage.setItem('yagssoog_font_scale', scale);
-}
+window.applyFontFamily = function(fontName) {
+  currentFontFamily = fontName;
+  localStorage.setItem('yagssoog_font_family', fontName);
+  
+  let fontFamilyStr = '';
+  if (fontName === 'Pretendard') fontFamilyStr = "'Pretendard', sans-serif";
+  else if (fontName === 'Noto Sans KR') fontFamilyStr = "'Noto Sans KR', sans-serif";
+  else if (fontName === 'Nanum Gothic') fontFamilyStr = "'Nanum Gothic', sans-serif";
+  else if (fontName === 'Nanum Myeongjo') fontFamilyStr = "'Nanum Myeongjo', serif";
+  else if (fontName === 'Inter') fontFamilyStr = "'Inter', sans-serif";
+  else fontFamilyStr = `${fontName}, sans-serif`;
+  
+  document.body.style.fontFamily = fontFamilyStr;
+  
+  // Sync the select dropdown element
+  const select = document.getElementById('fontFamilySelect');
+  if (select && select.value !== fontName) {
+    select.value = fontName;
+  }
+};
 
 // Switch tabs and update header/navbar styles
 function switchTab(tabId) {
@@ -330,12 +387,15 @@ function updateHeaderForTab(tabId) {
     let lunarText = '';
     try {
       if (typeof KoreanLunarCalendar !== 'undefined') {
-        KoreanLunarCalendar.setSolarDate(today.getFullYear(), m, d);
-        const lunar = KoreanLunarCalendar.getLunarCalendar();
+        const calendar = new KoreanLunarCalendar();
+        calendar.setSolarDate(today.getFullYear(), m, d);
+        const lunar = calendar.getLunarCalendar();
         const leapMark = lunar.isLeapMonth ? '(윤)' : '';
         lunarText = `음력 ${leapMark}${lunar.month}월 ${lunar.day}일`;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Lunar calendar calculation failed:", e);
+    }
 
     headerRightContainer.innerHTML = `
       <span class="text-on-surface-variant font-semibold text-xs">${formattedDate}</span>
@@ -409,23 +469,26 @@ function renderMedications() {
       
     cardEl.innerHTML = `
       ${!med.taken ? '<div class="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 rounded-bl-xl font-bold text-xs">다음 복용</div>' : ''}
-      <div class="w-16 h-16 rounded-2xl ${med.taken ? 'bg-surface-container-low' : 'bg-primary-fixed/30'} flex items-center justify-center overflow-hidden">
-        <img alt="${med.name}" class="w-12 h-12 object-contain" src="${med.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
+      <div class="w-16 h-16 shrink-0 rounded-2xl ${med.taken ? 'bg-surface-container-low' : 'bg-primary-fixed/30'} flex items-center justify-center overflow-hidden">
+        <img referrerpolicy="no-referrer" alt="${med.name}" class="w-12 h-12 object-contain" src="${med.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
       </div>
-      <div class="flex-1">
-        <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold">${med.name}</h3>
-        <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1">
+      <div class="flex-1 min-w-0">
+        <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-keep">${med.name}</h3>
+        <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1 break-keep">
           ${med.company} · 만료: ${med.expiry}
           ${isNearExpiry ? `<span class="material-symbols-outlined text-error text-base" style="font-variation-settings: 'FILL' 1;">warning</span>` : ''}
         </p>
-        <div class="mt-2 flex items-center gap-2">
-          <span class="text-primary font-extrabold text-[16px]">${med.time}</span>
-          <span class="bg-secondary-container/30 text-on-secondary-fixed-variant px-2 py-0.5 rounded text-xs font-semibold">${med.instruction}</span>
+        <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <span class="text-primary font-extrabold text-[16px] break-keep">${med.time}</span>
+          <span class="bg-secondary-container/30 text-on-secondary-fixed-variant px-2 py-0.5 rounded text-xs font-semibold break-keep">${med.instruction}</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="window.deleteMedication(event, ${med.id})" class="w-10 h-10 rounded-full border border-error/30 text-error flex items-center justify-center hover:bg-error/5 active:scale-90 transition-all" title="삭제">
-          <span class="material-symbols-outlined text-xl">delete</span>
+      <div class="flex flex-col items-center gap-1.5 shrink-0">
+        <button onclick="window.deleteMedication(event, ${med.id})" class="w-9 h-9 rounded-full border border-error/30 text-error flex items-center justify-center hover:bg-error/5 active:scale-90 transition-all" title="삭제">
+          <span class="material-symbols-outlined text-lg">delete</span>
+        </button>
+        <button onclick="window.editMedication(${med.id})" class="w-9 h-9 rounded-full border border-outline-variant/40 text-on-surface-variant flex items-center justify-center hover:bg-surface-container active:scale-90 transition-all" title="수정">
+          <span class="material-symbols-outlined text-lg">edit</span>
         </button>
         <button class="${btnClass}" onclick="toggleTaken(${med.id})">
           <span class="material-symbols-outlined text-3xl" style="font-variation-settings: ${fillStyle};">${iconName}</span>
@@ -444,6 +507,113 @@ function renderMedications() {
     banner.classList.add('hidden');
   }
 }
+
+// Edit a medication — open prefilled modal overlay
+window.editMedication = function(medId) {
+  const med = medications.find(m => m.id === medId);
+  if (!med) return;
+
+  // Remove existing modal if any
+  const existing = document.getElementById('edit-med-modal');
+  if (existing) existing.remove();
+
+  const timeOptions    = ['오전 8시', '오후 1시', '오후 6시', '오후 9시', '필요시 복용'];
+  const instrOptions   = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전', '식전 또는 식간'];
+  const catOptions     = ['일반 의약품', '전문의약품', '영양제', '기타'];
+  const makeOpts = (opts, cur) => opts.map(o =>
+    `<option value="${o}" ${o === cur ? 'selected' : ''}>${o}</option>`).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'edit-med-modal';
+  modal.className = 'fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm';
+  modal.innerHTML = `
+    <div class="w-full max-w-sm bg-surface-container-lowest rounded-t-[28px] shadow-2xl p-6 space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-primary">
+          <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1">edit_note</span>
+          <h3 class="font-bold text-lg">복용 정보 수정</h3>
+        </div>
+        <button onclick="document.getElementById('edit-med-modal').remove()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1">약 이름</label>
+          <input id="emod-name" type="text" value="${med.name}" class="w-full text-sm bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">제조사</label>
+            <input id="emod-company" type="text" value="${med.company}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">유통기한</label>
+            <input id="emod-expiry" type="text" value="${med.expiry}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용 시간</label>
+            <select id="emod-time" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              ${makeOpts(timeOptions, med.time)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용법</label>
+            <select id="emod-instruction" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              ${makeOpts(instrOptions, med.instruction)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1">분류</label>
+          <select id="emod-category" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+            ${makeOpts(catOptions, med.category)}
+          </select>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button onclick="window.saveEditedMedication(${medId})" class="flex-1 h-11 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all">
+          <span class="material-symbols-outlined text-sm">save</span>저장
+        </button>
+        <button onclick="document.getElementById('edit-med-modal').remove()" class="w-24 h-11 bg-surface-container border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl active:scale-[0.98] transition-all text-sm">
+          취소
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  // Close on backdrop click
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+};
+
+// Save changes from edit modal back to medications array
+window.saveEditedMedication = function(medId) {
+  const idx = medications.findIndex(m => m.id === medId);
+  if (idx === -1) return;
+
+  const name = document.getElementById('emod-name').value.trim();
+  if (!name) { showToast('약 이름을 입력해 주세요.'); return; }
+
+  medications[idx] = {
+    ...medications[idx],
+    name,
+    company:     document.getElementById('emod-company').value.trim() || medications[idx].company,
+    expiry:      document.getElementById('emod-expiry').value.trim()  || medications[idx].expiry,
+    time:        document.getElementById('emod-time').value,
+    instruction: document.getElementById('emod-instruction').value,
+    category:    document.getElementById('emod-category').value,
+  };
+
+  saveAppState();
+  renderMedications();
+  updateProgress();
+  document.getElementById('edit-med-modal').remove();
+  showToast('수정이 저장되었습니다! ✅');
+};
 
 // Delete a medication
 window.deleteMedication = function(event, medId) {
@@ -493,6 +663,23 @@ function setupEventListeners() {
       applyFontScale(val);
     });
   }
+  
+  // Font Size Number Input listener
+  const numInput = document.getElementById('fontSizeInput');
+  if (numInput) {
+    numInput.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      if (!isNaN(val) && val >= 12 && val <= 24) {
+        applyFontScale(val);
+      }
+    });
+    numInput.addEventListener('blur', (e) => {
+      let val = parseInt(e.target.value);
+      if (isNaN(val) || val < 12) val = 12;
+      if (val > 24) val = 24;
+      applyFontScale(val);
+    });
+  }
 }
 
 // ==========================================
@@ -500,7 +687,7 @@ function setupEventListeners() {
 // ==========================================
 
 // Mock Medication Database for scan simulation and search terms
-const MOCK_SCAN_DB = window.MOCK_SCAN_DB || {
+const MOCK_SCAN_DB = Object.assign({
   1: {
     id: 1,
     name: "고혈압약 (아모디핀)",
@@ -551,7 +738,7 @@ const MOCK_SCAN_DB = window.MOCK_SCAN_DB || {
     taken: false,
     price: "약 3,500원",
     guide: "혈전 예방 및 소염 진통제입니다. 위장 장애를 예방하기 위해 식사 후 충분한 물과 복용하세요.",
-    img: "https://img.icons8.com/color/96/pill.png"
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114110425811_KFX35JQ1R.jpg/201402959.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   "타이레놀": {
     id: 102,
@@ -564,7 +751,7 @@ const MOCK_SCAN_DB = window.MOCK_SCAN_DB || {
     taken: false,
     price: "약 3,000원",
     guide: "가장 대중적인 아세트아미노펜 진통제입니다. 하루 최대 4g(8정)을 초과해 복용하지 마세요.",
-    img: "https://img.icons8.com/color/96/pill.png"
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114172433420_4LL8LCY06.jpg/202106092.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   "0108806538063317": {
     id: 201,
@@ -577,9 +764,10 @@ const MOCK_SCAN_DB = window.MOCK_SCAN_DB || {
     taken: false,
     price: "약 4,500원",
     guide: "위열(胃熱)에 의한 치통 완화에 도움을 주는 승마, 목단피, 당귀 등이 함유된 청위산 성분의 생약제제입니다. 식전 또는 식사 사이에 복용하세요.",
-    img: "https://img.icons8.com/color/96/pill.png"
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
   }
-};
+}, window.MOCK_SCAN_DB || {});
+window.MOCK_SCAN_DB = MOCK_SCAN_DB;
 
 // Map barcode aliases
 MOCK_SCAN_DB["8806538063317"] = MOCK_SCAN_DB["0108806538063317"];
@@ -649,7 +837,7 @@ function renderScanResult(data) {
       <!-- Pill Identity Header -->
       <div class="flex items-center gap-4">
         <div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center p-2 border border-outline-variant/20 pill-float">
-          <img alt="${data.name}" class="w-full h-full object-contain" src="${data.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
+          <img referrerpolicy="no-referrer" alt="${data.name}" class="w-full h-full object-contain" src="${data.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
         </div>
         <div class="flex-1">
           <span class="inline-block px-3 py-1 bg-secondary-container/30 text-on-secondary-container rounded-full font-bold text-xs mb-1.5">${data.category}</span>
@@ -684,24 +872,197 @@ function renderScanResult(data) {
         <p class="text-on-tertiary-container text-xs leading-relaxed font-medium">${data.guide}</p>
       </div>
       
+      <!-- Official Search Links -->
+      <div class="space-y-1.5 pt-2.5 border-t border-outline-variant/20">
+        <p class="text-[10px] font-bold text-outline">🌐 신뢰할 수 있는 공식 의약품 정보 확인</p>
+        <div class="grid grid-cols-2 gap-2">
+          <a href="https://www.health.kr/searchDrug/search_detail.asp?searchVal=${encodeURIComponent(data.name)}" target="_blank" class="py-2 bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high rounded-xl text-[11px] font-bold flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-xs">open_in_new</span>약학정보원 검색
+          </a>
+          <a href="https://terms.naver.com/medicineSearch.nhn?query=${encodeURIComponent(data.name)}" target="_blank" class="py-2 bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high rounded-xl text-[11px] font-bold flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-xs">open_in_new</span>네이버 의약품사전
+          </a>
+        </div>
+      </div>
+      
       <!-- Action Buttons -->
       <div class="flex flex-col gap-2.5 pt-2">
-        <button onclick="addMedFromScan(${data.id === undefined ? `'` + data.name + `'` : data.id})" class="btn-active-depress w-full h-12 bg-primary-container text-on-primary-container font-bold rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-primary-container/15">
+        <button onclick="addMedFromScan('${data.name}')" class="btn-active-depress w-full h-12 bg-primary-container text-on-primary-container font-bold rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-md shadow-primary-container/15">
           <span class="material-symbols-outlined text-lg">add_task</span>
           내 일정에 추가
         </button>
-        <button onclick="resetScanView()" class="w-full h-12 bg-white border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl active:scale-[0.98] transition-all">
+        <button onclick="editScanResult()" class="w-full h-11 bg-surface-container border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all text-sm">
+          <span class="material-symbols-outlined text-base">edit</span>
+          정보 수정하기
+        </button>
+        <button onclick="resetScanView()" class="w-full h-10 bg-white border border-outline-variant/20 text-outline font-bold rounded-xl active:scale-[0.98] transition-all text-xs">
           다시 스캔하기
         </button>
       </div>
     </div>
   `;
   
+  // Store last rendered data for addMedFromScan fallback
+  window._lastScanResult = data;
+  
   container.classList.remove('hidden');
   document.getElementById('scan-controls-section').classList.add('hidden');
 }
 
-// Reset view to scanning mode
+// Edit current scan result — opens prefilled manual form
+window.editScanResult = function() {
+  const data = window._lastScanResult;
+  if (!data) return;
+  
+  const container = document.getElementById('scan-result-container');
+  if (!container) return;
+  
+  const timeOptions = ['오전 8시', '오후 1시', '오후 6시', '오후 9시', '필요시 복용'];
+  const instrOptions = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전'];
+  const catOptions  = ['일반 의약품', '전문의약품', '영양제', '기타'];
+  
+  const makeOptions = (opts, current) => opts.map(o =>
+    `<option value="${o}" ${o === current ? 'selected' : ''}>${o}</option>`
+  ).join('');
+  
+  container.innerHTML = `
+    <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-[28px] shadow-2xl p-6 space-y-5 animate-slide-up">
+      <!-- Header -->
+      <div class="flex items-center gap-2 text-primary">
+        <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+        <h3 class="font-headline-md text-lg font-bold">정보 수정하기</h3>
+      </div>
+      <p class="text-xs text-on-surface-variant -mt-2 leading-relaxed">잘못 조회된 정보를 수정한 후 일정에 추가하세요.</p>
+
+      <!-- URL Auto-fill Section -->
+      <div class="p-3.5 bg-primary-container/10 border border-primary-container/30 rounded-xl space-y-2">
+        <p class="text-[10px] font-bold text-primary flex items-center gap-1">
+          <span class="material-symbols-outlined text-xs">link</span>
+          네이버 의약품사전 또는 약학정보원 URL로 자동 입력
+        </p>
+        <div class="flex gap-2">
+          <input type="url" id="edit-url" placeholder="https://terms.naver.com/entry.naver?docId=..." class="flex-1 text-[11px] bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary min-w-0"/>
+          <button onclick="fillFromUrl()" class="shrink-0 px-3 py-2 bg-primary text-white font-bold rounded-xl text-[11px] flex items-center gap-1 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-xs">download</span>가져오기
+          </button>
+        </div>
+        <p id="edit-url-status" class="text-[10px] text-outline"></p>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1">약 이름 <span class="text-error">*</span></label>
+          <input type="text" id="edit-name" value="${data.name || ''}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">제조사</label>
+            <input type="text" id="edit-company" value="${data.company || ''}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">유통기한</label>
+            <input type="text" id="edit-expiry" value="${data.expiry || '2028.05'}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용 시간</label>
+            <select id="edit-time" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              ${makeOptions(timeOptions, data.time)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용법</label>
+            <select id="edit-instruction" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              ${makeOptions(instrOptions, data.instruction)}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1">분류</label>
+          <select id="edit-category" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+            ${makeOptions(catOptions, data.category)}
+          </select>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col gap-2 pt-2">
+        <button onclick="submitEditedMedication()" class="btn-active-depress w-full h-11 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all shadow-md">
+          <span class="material-symbols-outlined text-sm">playlist_add</span>
+          수정 후 일정에 추가
+        </button>
+        <button onclick="renderScanResult(window._lastScanResult)" class="w-full h-10 bg-white border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl active:scale-[0.98] transition-all text-xs">
+          취소하고 돌아가기
+        </button>
+      </div>
+    </div>
+  `;
+};
+
+// Submit edited medication from the edit form
+window.submitEditedMedication = function() {
+  const name = document.getElementById('edit-name').value.trim();
+  if (!name) { showToast('약 이름을 입력해 주세요.'); return; }
+  
+  const base = window._lastScanResult || {};
+  const newMed = {
+    id: Date.now(),
+    name,
+    company: document.getElementById('edit-company').value.trim() || base.company || '직접 등록',
+    expiry: document.getElementById('edit-expiry').value.trim() || base.expiry || '2028.05',
+    time: document.getElementById('edit-time').value,
+    instruction: document.getElementById('edit-instruction').value,
+    category: document.getElementById('edit-category').value,
+    taken: false,
+    img: base.img || 'https://img.icons8.com/color/96/pill.png'
+  };
+  
+  const exists = medications.some(m => m.name === newMed.name);
+  if (exists) { showToast('이미 일정에 등록된 약입니다!'); return; }
+  
+  medications.push(newMed);
+  saveAppState();
+  renderMedications();
+  updateProgress();
+  
+  showToast('내 복용 일정에 추가되었습니다! 🎉');
+  window._lastScanResult = null;
+  resetScanView();
+  switchTab('home');
+};
+
+// Fill edit form from a pasted URL (Naver Terms or health.kr)
+window.fillFromUrl = async function() {
+  const url = document.getElementById('edit-url').value.trim();
+  const statusEl = document.getElementById('edit-url-status');
+  if (!url) { statusEl.textContent = 'URL을 입력해 주세요.'; return; }
+  if (!url.includes('terms.naver.com') && !url.includes('health.kr')) {
+    statusEl.textContent = '⚠️ 네이버 의약품사전 또는 약학정보원 URL만 지원합니다.';
+    return;
+  }
+  statusEl.textContent = '크롤링 중...';
+  try {
+    const res = await fetch('/api/scrape_url?url=' + encodeURIComponent(url));
+    const json = await res.json();
+    if (json.success && json.data) {
+      const d = json.data;
+      if (d.name)         document.getElementById('edit-name').value    = d.name;
+      if (d.manufacturer) document.getElementById('edit-company').value = d.manufacturer;
+      if (d.efficacy)     document.getElementById('edit-name').title    = d.efficacy;
+      // Update _lastScanResult image if a better one was found
+      if (d.image_url && window._lastScanResult) {
+        window._lastScanResult.img = d.image_url;
+      }
+      statusEl.textContent = '✅ 정보가 자동으로 채워졌습니다. 필요시 수정 후 추가하세요.';
+      statusEl.className = 'text-[10px] text-tertiary font-bold';
+    } else {
+      statusEl.textContent = '❌ ' + (json.error || '정보를 찾지 못했습니다.');
+    }
+  } catch(e) {
+    statusEl.textContent = '❌ 서버 연결 실패. 로컨 서버가 실행 중인지 확인하세요.';
+  }
+};
+
 window.resetScanView = function() {
   document.getElementById('scan-result-container').classList.add('hidden');
   document.getElementById('scan-controls-section').classList.remove('hidden');
@@ -711,8 +1072,18 @@ window.resetScanView = function() {
 
 // Add drug to schedule array and go to home
 window.addMedFromScan = function(key) {
-  let sourceData = MOCK_SCAN_DB[key];
-  if (!sourceData) return;
+  // First try MOCK_SCAN_DB, then fall back to last rendered scan result
+  let sourceData = MOCK_SCAN_DB[key] || (window._lastScanResult && window._lastScanResult.name === key ? window._lastScanResult : null);
+  
+  // Last resort: use _lastScanResult directly if key is undefined or not found
+  if (!sourceData && window._lastScanResult) {
+    sourceData = window._lastScanResult;
+  }
+  
+  if (!sourceData) {
+    showToast("약 정보를 찾을 수 없습니다.");
+    return;
+  }
   
   // Verify if it is already added to schedule
   const exists = medications.some(m => m.name === sourceData.name);
@@ -728,12 +1099,12 @@ window.addMedFromScan = function(key) {
     id: Date.now(),
     name: sourceData.name,
     company: sourceData.company,
-    expiry: sourceData.expiry,
-    time: sourceData.time,
-    instruction: sourceData.instruction,
-    category: sourceData.category,
+    expiry: sourceData.expiry || "2028.05",
+    time: sourceData.time || "오전 8시",
+    instruction: sourceData.instruction || "식후 30분",
+    category: sourceData.category || "일반 의약품",
     taken: false,
-    img: sourceData.img
+    img: sourceData.img || "https://img.icons8.com/color/96/pill.png"
   };
   
   medications.push(newMed);
@@ -741,7 +1112,8 @@ window.addMedFromScan = function(key) {
   renderMedications();
   updateProgress();
   
-  showToast("내 복용 일정에 추가되었습니다!");
+  showToast("내 복용 일정에 추가되었습니다! 🎉");
+  window._lastScanResult = null;
   resetScanView();
   switchTab('home');
 };
@@ -819,13 +1191,13 @@ window.queryPublicAPI = async function() {
       const match = {
         name: item.ITEM_NAME,
         company: item.ENTP_NAME,
-        expiry: "2027.12", // Default placeholder for API response
-        time: "오전 8시",
-        instruction: "식후 30분",
-        category: "기타 식별 정보",
+        expiry: "2028.05", // Default placeholder for API response
+        time: item.USE_METHOD_OUTLINE ? "복용량 참고" : "오전 8시",
+        instruction: item.USE_METHOD_OUTLINE ? (item.USE_METHOD_OUTLINE.length > 28 ? item.USE_METHOD_OUTLINE.slice(0, 28) + '...' : item.USE_METHOD_OUTLINE) : "식후 30분",
+        category: "일반 의약품",
         taken: false,
-        price: "약 3,000원",
-        guide: `낱알식별정보: ${item.PRINT_FRONT || ''} (${item.DRUG_SHAPE || '기타모양'}) / 성상: ${item.COLOR_CLASS1 || ''}`,
+        price: "약 4,500원",
+        guide: item.EFFICIENCY_OUTLINE || `낱알식별정보: ${item.PRINT_FRONT || ''} (${item.DRUG_SHAPE || '기타모양'}) / 성상: ${item.COLOR_CLASS1 || ''}`,
         img: item.ITEM_IMAGE || "https://img.icons8.com/color/96/pill.png"
       };
       
@@ -854,26 +1226,164 @@ window.queryPublicAPI = async function() {
       return;
     }
     
-    // Auto fallback to dynamically generated mock item to guarantee 100% working demo
-    const fallbackMedName = `${query}정`;
-    const fallbackData = {
-      name: fallbackMedName,
-      company: "동아제약 (조회대체)",
-      expiry: "2027.06",
-      time: "오전 9시",
-      instruction: "식후 30분",
-      category: "일반 의약품",
-      taken: false,
-      price: "약 4,000원",
-      guide: `[식약처 API 조회 대체 안내] 상세 오류: ${error.message}. 로컬 웹 브라우저의 CORS 제한 또는 API 인증키 오류로 인해 모의 조회 결과를 반환합니다.`,
-      img: "https://img.icons8.com/color/96/pill.png"
-    };
-    
-    MOCK_SCAN_DB[fallbackMedName] = fallbackData;
+    // Instead of auto-generating fake mock info, render the query failed screen with manual entry alternatives
     setTimeout(() => {
-      renderScanResult(fallbackData);
-    }, 600);
+      renderQueryFailed(query, error.message);
+    }, 300);
   }
+};
+
+// Render query failed screen with manual entry form and official database search options
+window.renderQueryFailed = function(query, errorMessage, isDirect = false) {
+  const container = document.getElementById('scan-result-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-[28px] shadow-2xl p-6 space-y-5 animate-slide-up">
+      <!-- Header -->
+      <div class="space-y-1">
+        <div class="flex items-center gap-2 text-primary">
+          <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">${isDirect ? 'edit_note' : 'error'}</span>
+          <h3 class="font-headline-md text-lg font-bold">${isDirect ? '약 직접 등록하기' : '식약처 DB 조회 실패'}</h3>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          ${isDirect ? '보유하신 약의 정보를 직접 정확하게 입력하여 복용 일정에 추가할 수 있습니다.' 
+                     : `식약처 API 조회 실패 (${errorMessage || 'CORS 차단 또는 인증키 오류'}). 정확한 정보 입력을 위해 직접 등록하거나 아래 공식 서비스를 이용해 주세요.`}
+        </p>
+      </div>
+
+      <!-- Manual Input Form -->
+      <div class="space-y-3 pt-1">
+        <div>
+          <label class="block text-[11px] font-bold text-on-surface-variant mb-1">약 이름 <span class="text-error">*</span></label>
+          <input type="text" id="manual-name" value="${query || ''}" placeholder="예: 타이레놀정 500mg" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">제조사 (선택)</label>
+            <input type="text" id="manual-company" placeholder="예: 한국존슨앤드존슨" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">유통기한 <span class="text-error">*</span></label>
+            <input type="text" id="manual-expiry" value="2027.06" placeholder="예: 2027.06" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용 시간 <span class="text-error">*</span></label>
+            <select id="manual-time" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              <option value="오전 8시">오전 8시 (아침)</option>
+              <option value="오후 1시" selected>오후 1시 (점심)</option>
+              <option value="오후 6시">오후 6시 (저녁)</option>
+              <option value="오후 9시">오후 9시 (취침전)</option>
+              <option value="필요시 복용">필요시 복용</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">복용법 <span class="text-error">*</span></label>
+            <select id="manual-instruction" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              <option value="식후 30분" selected>식후 30분</option>
+              <option value="식후 즉시">식후 즉시</option>
+              <option value="식전 30분">식전 30분</option>
+              <option value="공복 가능">공복 가능</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">카테고리 <span class="text-error">*</span></label>
+            <select id="manual-category" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary">
+              <option value="일반 의약품" selected>일반 의약품</option>
+              <option value="전문의약품">전문의약품</option>
+              <option value="영양제">영양제</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-on-surface-variant mb-1">가격 (선택)</label>
+            <input type="text" id="manual-price" placeholder="예: 약 3,000원" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Official Search Links -->
+      ${(!isDirect && query) ? `
+      <div class="space-y-1.5 pt-2.5 border-t border-outline-variant/20">
+        <p class="text-[10px] font-bold text-outline">🌐 신뢰할 수 있는 공식 의약품 정보 확인</p>
+        <div class="grid grid-cols-2 gap-2">
+          <a href="https://www.health.kr/searchDrug/search_detail.asp?searchVal=${encodeURIComponent(query)}" target="_blank" class="py-2 bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high rounded-xl text-[11px] font-bold flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-xs">open_in_new</span>약학정보원 검색
+          </a>
+          <a href="https://terms.naver.com/medicineSearch.nhn?query=${encodeURIComponent(query)}" target="_blank" class="py-2 bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-high rounded-xl text-[11px] font-bold flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-xs">open_in_new</span>네이버 의약품사전
+          </a>
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2 pt-2">
+        <button onclick="submitManualMedication()" class="btn-active-depress w-full h-11 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all shadow-md">
+          <span class="material-symbols-outlined text-sm">playlist_add</span>
+          내 일정에 추가하기
+        </button>
+        <button onclick="resetScanView()" class="w-full h-11 bg-white border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl active:scale-[0.98] transition-all text-xs">
+          취소하고 돌아가기
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.classList.remove('hidden');
+  document.getElementById('scan-controls-section').classList.add('hidden');
+};
+
+window.submitManualMedication = function() {
+  const name = document.getElementById('manual-name').value.trim();
+  const company = document.getElementById('manual-company').value.trim() || '직접 등록';
+  const expiry = document.getElementById('manual-expiry').value.trim() || '2027.06';
+  const time = document.getElementById('manual-time').value;
+  const instruction = document.getElementById('manual-instruction').value;
+  const category = document.getElementById('manual-category').value;
+  const price = document.getElementById('manual-price').value.trim() || '정보 없음';
+
+  if (!name) {
+    showToast("약 이름을 입력해 주세요.");
+    return;
+  }
+
+  // Create manual medication object
+  const newMed = {
+    id: Date.now(),
+    name: name,
+    company: company,
+    expiry: expiry,
+    time: time,
+    instruction: instruction,
+    category: category,
+    taken: false,
+    img: "https://img.icons8.com/color/96/pill.png" // Default pill image
+  };
+
+  // Add to schedule
+  medications.push(newMed);
+  saveAppState();
+  renderMedications();
+  updateProgress();
+
+  showToast("내 복용 일정에 약이 등록되었습니다!");
+  resetScanView();
+  switchTab('home');
+};
+
+window.triggerManualEntryDirect = function() {
+  document.getElementById('scan-controls-section').classList.add('hidden');
+  const container = document.getElementById('scan-result-container');
+  container.classList.remove('hidden');
+  renderQueryFailed('', '직접 등록', true);
 };
 
 // Simple Toast Notification component
@@ -962,69 +1472,20 @@ window.renderAlarms = function() {
 
     cardEl.className = `bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-6 space-y-4 ${glowClass} transition-all active:scale-[0.98]`;
     
-    // Choose bottom sound panel HTML structure based on alarm ID to match stitch _4 exactly
-    let soundPanelHtml = '';
-    
-    if (alarm.id === 1) {
-      // Alarm Card 1: Vertical list format
-      soundPanelHtml = `
-        <div class="space-y-2 ${opacityClass}">
-          <div class="flex justify-between items-center">
-            <p class="font-label-lg text-on-surface-variant">알림 소리 선택</p>
-            ${alarm.active ? `<button onclick="testAlarmSound('${alarm.soundType}')" class="text-primary font-label-lg text-sm flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">volume_up</span>미리듣기</button>` : ''}
-          </div>
-          <div class="grid grid-cols-1 gap-2">
-            ${soundOptBtnVertical("어르신 (크고 천천히)", "elderly", "elderly")}
-            ${soundOptBtnVertical("일반 (표준)", "normal", "notifications")}
-            ${soundOptBtnVertical("어린이 (멜로디)", "melody", "child_care")}
-          </div>
-        </div>
-      `;
-    } else if (alarm.id === 2) {
-      // Alarm Card 2: Horizontal 3-column format
-      soundPanelHtml = `
-        <div class="space-y-2 ${opacityClass}">
+    // Single unified sound panel: vertical list for all alarm cards
+    const soundPanelHtml = `
+      <div class="space-y-2 ${opacityClass}">
+        <div class="flex justify-between items-center">
           <p class="font-label-lg text-on-surface-variant">알림 소리 선택</p>
-          <div class="flex flex-wrap gap-2">
-            ${soundOptBtnHorizontal("melody", "어린이<br/>(멜로디)", "child_care")}
-            ${soundOptBtnHorizontal("normal", "일반<br/>(표준)", "notifications")}
-            ${soundOptBtnHorizontal("elderly", "어르신<br/>(크고 천천히)", "elderly")}
-          </div>
+          ${alarm.active ? `<button onclick="testAlarmSound('${alarm.soundType}')" class="text-primary font-label-lg text-sm flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">volume_up</span>미리듣기</button>` : ''}
         </div>
-      `;
-    } else if (alarm.id === 3) {
-      // Alarm Card 3: Custom volume description box style
-      const soundLabels = {
-        elderly: "어르신 (크고 천천히)",
-        normal: "일반 (표준)",
-        melody: "어린이 (멜로디)"
-      };
-      const curLabel = soundLabels[alarm.soundType] || "일반 (표준)";
-      soundPanelHtml = `
-        <div class="flex items-center gap-3 p-4 bg-tertiary/5 rounded-xl border border-tertiary/10 cursor-pointer ${opacityClass}" onclick="testAlarmSound('${alarm.soundType}')">
-          <span class="material-symbols-outlined text-tertiary">volume_up</span>
-          <div>
-            <div class="font-label-lg text-tertiary font-bold">${curLabel}</div>
-            <div class="text-[12px] text-on-surface-variant">취침 전 부드러운 벨소리 (클릭 시 재생)</div>
-          </div>
+        <div class="grid grid-cols-1 gap-2">
+          ${soundOptBtnVertical("어르신 (크고 천천히)", "elderly", "elderly")}
+          ${soundOptBtnVertical("일반 (표준)", "normal", "notifications")}
+          ${soundOptBtnVertical("어린이 (멜로디)", "melody", "child_care")}
         </div>
-      `;
-    } else {
-      // Default fallback for any dynamically added alarms: Vertical list format
-      soundPanelHtml = `
-        <div class="space-y-2 ${opacityClass}">
-          <div class="flex justify-between items-center">
-            <p class="font-label-lg text-on-surface-variant">알림 소리 선택</p>
-            ${alarm.active ? `<button onclick="testAlarmSound('${alarm.soundType}')" class="text-primary font-label-lg text-sm flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">volume_up</span>미리듣기</button>` : ''}
-          </div>
-          <div class="grid grid-cols-1 gap-2">
-            ${soundOptBtnVertical("어르신 (크고 천천히)", "elderly", "elderly")}
-            ${soundOptBtnVertical("일반 (표준)", "normal", "notifications")}
-            ${soundOptBtnVertical("어린이 (멜로디)", "melody", "child_care")}
-          </div>
-        </div>
-      `;
-    }
+      </div>
+    `;
 
     cardEl.innerHTML = `
       <!-- Card Top: Info & Toggle -->
@@ -1039,10 +1500,18 @@ window.renderAlarms = function() {
           </div>
         </div>
 
-        <!-- Toggle button -->
-        <button class="w-14 h-8 ${toggleBg} rounded-full relative p-1 transition-colors duration-300 btn-active-depress" onclick="toggleAlarmActive(${alarm.id})">
-          <div class="w-6 h-6 bg-white rounded-full shadow-sm ${toggleCircleTrans} transition-transform duration-300"></div>
-        </button>
+        <!-- Right actions: Edit + Delete + Toggle -->
+        <div class="flex items-center gap-2">
+          <button onclick="editAlarm(${alarm.id})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-primary active:scale-90 transition-all" title="수정">
+            <span class="material-symbols-outlined text-[18px]">edit</span>
+          </button>
+          <button onclick="deleteAlarm(${alarm.id})" class="w-8 h-8 flex items-center justify-center rounded-lg bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-error active:scale-90 transition-all" title="삭제">
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+          <button class="w-14 h-8 ${toggleBg} rounded-full relative p-1 transition-colors duration-300 btn-active-depress" onclick="toggleAlarmActive(${alarm.id})">
+            <div class="w-6 h-6 bg-white rounded-full shadow-sm ${toggleCircleTrans} transition-transform duration-300"></div>
+          </button>
+        </div>
       </div>
 
       ${soundPanelHtml}
@@ -1177,6 +1646,200 @@ window.createNewAlarm = function() {
   
   // Play the chime of the new alarm sound
   testAlarmSound("normal");
+};
+
+// Delete alarm with confirmation
+window.deleteAlarm = function(id) {
+  const alarm = alarms.find(a => a.id === id);
+  if (!alarm) return;
+
+  // Show inline confirm toast
+  let confirmEl = document.getElementById('alarm-delete-confirm');
+  if (confirmEl) confirmEl.remove();
+
+  confirmEl = document.createElement('div');
+  confirmEl.id = 'alarm-delete-confirm';
+  confirmEl.className = "fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900/95 text-white text-xs font-bold py-3 px-5 rounded-2xl shadow-xl z-50 flex items-center gap-3";
+  confirmEl.innerHTML = `
+    <span>「${alarm.medName}」 알람을 삭제할까요?</span>
+    <button onclick="confirmDeleteAlarm(${id})" class="bg-error text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95">삭제</button>
+    <button onclick="document.getElementById('alarm-delete-confirm').remove()" class="bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-lg active:scale-95">취소</button>
+  `;
+  document.body.appendChild(confirmEl);
+  setTimeout(() => { if (confirmEl.parentNode) confirmEl.remove(); }, 5000);
+};
+
+window.confirmDeleteAlarm = function(id) {
+  document.getElementById('alarm-delete-confirm')?.remove();
+  alarms = alarms.filter(a => a.id !== id);
+  saveAlarmsState();
+  renderAlarms();
+  showToast("🗑️ 알람이 삭제되었습니다.");
+};
+
+// Edit alarm — opens a bottom-sheet modal
+window.editAlarm = function(id) {
+  const alarm = alarms.find(a => a.id === id);
+  if (!alarm) return;
+
+  // Remove existing modal if any
+  document.getElementById('edit-alarm-modal')?.remove();
+
+  const [h, m] = alarm.time.split(':');
+
+  const modal = document.createElement('div');
+  modal.id = 'edit-alarm-modal';
+  modal.className = "fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm";
+  modal.innerHTML = `
+    <div class="w-full max-w-md bg-surface rounded-t-3xl p-6 space-y-5 shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-on-surface font-bold">알람 수정</h2>
+        <button onclick="document.getElementById('edit-alarm-modal').remove()" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant active:scale-90 transition-all">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Med Name -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">약 이름</label>
+        <input id="edit-alarm-name" type="text" value="${alarm.medName}"
+          class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+
+      <!-- Time -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">시간</label>
+        <div class="flex gap-2">
+          <select id="edit-alarm-hour" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${Array.from({length:12},(_,i)=>{const v=String(i+1).padStart(2,'0');return `<option value="${v}" ${v===h?'selected':''}>${v}</option>`}).join('')}
+          </select>
+          <select id="edit-alarm-min" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${['00','05','10','15','20','25','30','35','40','45','50','55'].map(v=>`<option value="${v}" ${v===m?'selected':''}>${v}</option>`).join('')}
+          </select>
+          <select id="edit-alarm-period" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            <option value="AM" ${alarm.period==='AM'?'selected':''}>AM</option>
+            <option value="PM" ${alarm.period==='PM'?'selected':''}>PM</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Icon & Color -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">아이콘 / 색상</label>
+        <div class="flex gap-2">
+          ${[
+            {icon:'pill', color:'primary'},
+            {icon:'medication', color:'secondary'},
+            {icon:'nightlight', color:'tertiary'},
+            {icon:'vaccines', color:'primary'},
+            {icon:'medication_liquid', color:'secondary'},
+            {icon:'ecg_heart', color:'tertiary'}
+          ].map(opt => `
+            <button onclick="selectEditAlarmIcon('${opt.icon}','${opt.color}')" id="edit-icon-${opt.icon}"
+              class="flex-1 flex flex-col items-center gap-1 py-2.5 rounded-xl border ${alarm.icon===opt.icon ? 'border-2 border-primary bg-primary-container/10' : 'border-outline-variant/30 bg-surface-container'} active:scale-90 transition-all">
+              <span class="material-symbols-outlined text-${opt.color} text-xl" style="font-variation-settings:'FILL' 1;">${opt.icon}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Sound -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">알림 소리</label>
+        <div class="grid grid-cols-3 gap-2">
+          ${[
+            {val:'elderly', label:'어르신', icon:'elderly'},
+            {val:'normal',  label:'일반',   icon:'notifications'},
+            {val:'melody',  label:'멜로디', icon:'child_care'}
+          ].map(s => `
+            <button onclick="selectEditAlarmSound('${s.val}')" id="edit-sound-${s.val}"
+              class="py-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-bold transition-all active:scale-95 ${alarm.soundType===s.val ? 'border-2 border-primary bg-primary-container/10 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant'}">
+              <span class="material-symbols-outlined text-base">${s.icon}</span>
+              ${s.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <button onclick="saveEditedAlarm(${alarm.id})"
+        class="w-full py-3.5 bg-primary text-on-primary font-bold rounded-xl text-sm active:scale-95 transition-all shadow-md">
+        저장하기
+      </button>
+    </div>
+  `;
+
+  // Store selected icon/color/sound in temp data attributes
+  modal.dataset.selectedIcon  = alarm.icon;
+  modal.dataset.selectedColor = alarm.color;
+  modal.dataset.selectedSound = alarm.soundType;
+
+  document.body.appendChild(modal);
+
+  // Close on backdrop tap
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+};
+
+window.selectEditAlarmIcon = function(icon, color) {
+  const modal = document.getElementById('edit-alarm-modal');
+  if (!modal) return;
+  modal.dataset.selectedIcon  = icon;
+  modal.dataset.selectedColor = color;
+  // Visual feedback: reset all, highlight selected
+  ['pill','medication','nightlight','vaccines','medication_liquid','ecg_heart'].forEach(ic => {
+    const btn = document.getElementById(`edit-icon-${ic}`);
+    if (btn) btn.className = btn.className
+      .replace('border-2 border-primary bg-primary-container/10', '')
+      .replace('border-outline-variant/30 bg-surface-container', '') + ' border-outline-variant/30 bg-surface-container';
+  });
+  const sel = document.getElementById(`edit-icon-${icon}`);
+  if (sel) sel.className = sel.className
+    .replace('border-outline-variant/30 bg-surface-container', 'border-2 border-primary bg-primary-container/10');
+};
+
+window.selectEditAlarmSound = function(soundVal) {
+  const modal = document.getElementById('edit-alarm-modal');
+  if (!modal) return;
+  modal.dataset.selectedSound = soundVal;
+  ['elderly','normal','melody'].forEach(s => {
+    const btn = document.getElementById(`edit-sound-${s}`);
+    if (!btn) return;
+    if (s === soundVal) {
+      btn.className = btn.className
+        .replace('border-outline-variant/30 bg-surface-container text-on-surface-variant', 'border-2 border-primary bg-primary-container/10 text-primary');
+    } else {
+      btn.className = btn.className
+        .replace('border-2 border-primary bg-primary-container/10 text-primary', 'border-outline-variant/30 bg-surface-container text-on-surface-variant');
+    }
+  });
+  testAlarmSound(soundVal);
+};
+
+window.saveEditedAlarm = function(id) {
+  const modal = document.getElementById('edit-alarm-modal');
+  if (!modal) return;
+
+  const name   = document.getElementById('edit-alarm-name').value.trim();
+  const hour   = document.getElementById('edit-alarm-hour').value;
+  const min    = document.getElementById('edit-alarm-min').value;
+  const period = document.getElementById('edit-alarm-period').value;
+
+  if (!name) { showToast("⚠️ 약 이름을 입력해 주세요."); return; }
+
+  const alarm = alarms.find(a => a.id === id);
+  if (!alarm) return;
+
+  alarm.medName   = name;
+  alarm.time      = `${hour}:${min}`;
+  alarm.period    = period;
+  alarm.icon      = modal.dataset.selectedIcon  || alarm.icon;
+  alarm.color     = modal.dataset.selectedColor || alarm.color;
+  alarm.soundType = modal.dataset.selectedSound || alarm.soundType;
+
+  saveAlarmsState();
+  renderAlarms();
+  modal.remove();
+  showToast("✅ 알람이 수정되었습니다.");
 };
 
 // ==========================================
@@ -1645,5 +2308,84 @@ function updateRepeatSummaryText() {
     summaryEl.innerText = "반복: 꺼짐";
   }
 }
+
+// ==================================================================
+// USER PORTABLE DATA BACKUP & RESTORE (MOBILE & PWA FRIENDLY)
+// ==================================================================
+window.exportUserData = function() {
+  try {
+    const data = {
+      yagssoog_med_list: JSON.parse(localStorage.getItem('yagssoog_med_list') || '[]'),
+      yagssoog_alarm_list: JSON.parse(localStorage.getItem('yagssoog_alarm_list') || '[]'),
+      yagssoog_font_scale: localStorage.getItem('yagssoog_font_scale') || '17',
+      yagssoog_font_family: localStorage.getItem('yagssoog_font_family') || 'Pretendard',
+      yagssoog_guardian_enabled: localStorage.getItem('yagssoog_guardian_enabled') || 'false',
+      yagssoog_guardian_phone: localStorage.getItem('yagssoog_guardian_phone') || '',
+      yagssoog_api_key: localStorage.getItem('yagssoog_api_key') || '',
+      yagssoog_repeat_settings: JSON.parse(localStorage.getItem('yagssoog_repeat_settings') || '{"enabled":false,"interval":10,"count":5}'),
+      backup_signature: "yagssoog_user_backup_file",
+      backup_date: new Date().toISOString()
+    };
+    
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const now = new Date();
+    const dateStr = now.getFullYear() + 
+                    String(now.getMonth() + 1).padStart(2, '0') + 
+                    String(now.getDate()).padStart(2, '0') + "_" + 
+                    String(now.getHours()).padStart(2, '0') + 
+                    String(now.getMinutes()).padStart(2, '0');
+                    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `YakSsoog_backup_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("✅ 복약 데이터 백업 파일이 생성되었습니다.");
+  } catch (e) {
+    showToast("❌ 백업 실패: 데이터를 불러올 수 없습니다.");
+    console.error(e);
+  }
+};
+
+window.importUserData = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.backup_signature !== "yagssoog_user_backup_file") {
+        showToast("❌ 올바른 약쏘옥 백업 파일이 아닙니다.");
+        input.value = "";
+        return;
+      }
+      
+      // Save data back to localStorage
+      if (data.yagssoog_med_list) localStorage.setItem('yagssoog_med_list', JSON.stringify(data.yagssoog_med_list));
+      if (data.yagssoog_alarm_list) localStorage.setItem('yagssoog_alarm_list', JSON.stringify(data.yagssoog_alarm_list));
+      if (data.yagssoog_font_scale) localStorage.setItem('yagssoog_font_scale', data.yagssoog_font_scale);
+      if (data.yagssoog_font_family) localStorage.setItem('yagssoog_font_family', data.yagssoog_font_family);
+      if (data.yagssoog_guardian_enabled) localStorage.setItem('yagssoog_guardian_enabled', data.yagssoog_guardian_enabled);
+      if (data.yagssoog_guardian_phone) localStorage.setItem('yagssoog_guardian_phone', data.yagssoog_guardian_phone);
+      if (data.yagssoog_api_key) localStorage.setItem('yagssoog_api_key', data.yagssoog_api_key);
+      if (data.yagssoog_repeat_settings) localStorage.setItem('yagssoog_repeat_settings', JSON.stringify(data.yagssoog_repeat_settings));
+      
+      showToast("✅ 데이터 가져오기 성공! 페이지를 새로고침합니다.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      showToast("❌ 파일 읽기 실패: 데이터 형식이 올바르지 않습니다.");
+      input.value = "";
+    }
+  };
+  reader.readAsText(file);
+};
 
 
