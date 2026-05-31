@@ -2594,7 +2594,7 @@ function triggerBrowserDownload(jsonStr) {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast("✅ 복약 데이터 백업 파일이 생성되었습니다.");
+  showToast(`✅ 다운로드 폴더에 저장되었습니다 확인하세요 파일명: YakSsoog_backup_${dateStr}.json`);
 }
 
 window.importUserData = function(input) {
