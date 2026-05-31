@@ -63,7 +63,7 @@
       "time": "08:00",
       "period": "AM",
       "active": true,
-      "soundType": "elderly",
+      "soundType": "musical",
       "icon": "pill",
       "color": "primary"
     },
@@ -94,10 +94,10 @@
   "yagssoog_guardian_phone": "",
   "yagssoog_api_key": "9fe3ddde51d5cb0d90b7a7a74b7acac89e2f97a12a283963c54da1e20f5e8dbd",
   "yagssoog_repeat_settings": {
-    "enabled": false,
+    "enabled": true,
     "interval": 10,
     "count": 5
   },
   "backup_signature": "yagssoog_user_backup_file",
-  "backup_date": "2026-05-31T03:45:38.794Z"
+  "backup_date": "2026-05-31T09:30:05.586Z"
 }

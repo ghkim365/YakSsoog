@@ -5,93 +5,93 @@
 // Initial default medication data matching the design system templates
 const DEFAULT_MEDICATIONS = [
   {
-    id: 1780195993722,
-    name: "덴치원캡슐",
-    company: "신일제약 (API 보완적용)",
-    expiry: "2028.05",
-    time: "식전 또는 식간",
-    instruction: "1회 2캡슐 (1일 3회)",
-    category: "치통 치료제 (생약)",
-    taken: false,
-    img: "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
+    "id": 1780195993722,
+    "name": "덴치원캡슐",
+    "company": "신일제약 (API 보완적용)",
+    "expiry": "2028.05",
+    "time": "식전 또는 식간",
+    "instruction": "1회 2캡슐 (1일 3회)",
+    "category": "치통 치료제 (생약)",
+    "taken": false,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   {
-    id: 1780196999113,
-    name: "보령알벤다졸정",
-    company: "알 수 없음",
-    expiry: "2028.05",
-    time: "필요시 복용",
-    instruction: "취침 전",
-    category: "일반 의약품",
-    taken: false,
-    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y"
+    "id": 1780196999113,
+    "name": "보령알벤다졸정",
+    "company": "알 수 없음",
+    "expiry": "2028.05",
+    "time": "필요시 복용",
+    "instruction": "취침 전",
+    "category": "일반 의약품",
+    "taken": false,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   {
-    id: 1780198011377,
-    name: "콜록노즈연질캡슐",
-    company: "GC녹십자",
-    expiry: "2028.05",
-    time: "필요시 복용",
-    instruction: "식후 30분",
-    category: "일반 의약품",
-    taken: false,
-    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y"
+    "id": 1780198011377,
+    "name": "콜록노즈연질캡슐",
+    "company": "GC녹십자",
+    "expiry": "2028.05",
+    "time": "필요시 복용",
+    "instruction": "식후 30분",
+    "category": "일반 의약품",
+    "taken": false,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   {
-    id: 1780198056443,
-    name: "파이네신캡슐(은교산)",
-    company: "정우신약",
-    expiry: "2028.05",
-    time: "필요시 복용",
-    instruction: "식후 30분",
-    category: "일반 의약품",
-    taken: false,
-    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y"
+    "id": 1780198056443,
+    "name": "파이네신캡슐(은교산)",
+    "company": "정우신약",
+    "expiry": "2028.05",
+    "time": "필요시 복용",
+    "instruction": "식후 30분",
+    "category": "일반 의약품",
+    "taken": false,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y"
   },
   {
-    id: 1780198139254,
-    name: "아르펜정",
-    company: "경남제약(주)",
-    expiry: "2028.05",
-    time: "필요시 복용",
-    instruction: "식후 30분",
-    category: "일반 의약품",
-    taken: false,
-    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y"
+    "id": 1780198139254,
+    "name": "아르펜정",
+    "company": "경남제약(주)",
+    "expiry": "2028.05",
+    "time": "필요시 복용",
+    "instruction": "식후 30분",
+    "category": "일반 의약품",
+    "taken": false,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y"
   }
 ];
 
 // Default Alarm settings matching _4/code.html mockups
 const DEFAULT_ALARMS = [
   {
-    id: 1,
-    medName: "혈압약 (아모디핀)",
-    time: "08:00",
-    period: "AM",
-    active: true,
-    soundType: "elderly",
-    icon: "pill",
-    color: "primary"
+    "id": 1,
+    "medName": "혈압약 (아모디핀)",
+    "time": "08:00",
+    "period": "AM",
+    "active": true,
+    "soundType": "musical",
+    "icon": "pill",
+    "color": "primary"
   },
   {
-    id: 2,
-    medName: "종합 비타민",
-    time: "12:30",
-    period: "PM",
-    active: false,
-    soundType: "normal",
-    icon: "medication",
-    color: "secondary"
+    "id": 2,
+    "medName": "종합 비타민",
+    "time": "12:30",
+    "period": "PM",
+    "active": false,
+    "soundType": "normal",
+    "icon": "medication",
+    "color": "secondary"
   },
   {
-    id: 3,
-    medName: "수면 보조제",
-    time: "10:00",
-    period: "PM",
-    active: true,
-    soundType: "melody",
-    icon: "nightlight",
-    color: "tertiary"
+    "id": 3,
+    "medName": "수면 보조제",
+    "time": "10:00",
+    "period": "PM",
+    "active": true,
+    "soundType": "melody",
+    "icon": "nightlight",
+    "color": "tertiary"
   }
 ];
 
@@ -465,6 +465,14 @@ function updateHeaderForTab(tabId) {
   }
 }
 
+function getDefaultExpiryDate() {
+  const now = new Date();
+  const future = new Date(now.getFullYear() + 2, now.getMonth(), 1);
+  const y = future.getFullYear();
+  const m = String(future.getMonth() + 1).padStart(2, '0');
+  return `${y}.${m}`;
+}
+
 // Check if a medication's expiry date is close to current date (less than 3 months away)
 function isExpiryImminent(expiryStr) {
   // Expected format: YYYY.MM
@@ -518,7 +526,7 @@ function renderMedications() {
       <div class="flex-1 min-w-0">
         <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-keep">${med.name}</h3>
         <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1 break-keep">
-          ${med.company} · 만료: ${med.expiry}
+          ${med.company} · 유통기한: ${med.expiry}
           ${isNearExpiry ? `<span class="material-symbols-outlined text-error text-base" style="font-variation-settings: 'FILL' 1;">warning</span>` : ''}
         </p>
         <div class="mt-2 flex items-center gap-2 flex-wrap">
@@ -803,7 +811,7 @@ const MOCK_SCAN_DB = Object.assign({
     id: 201,
     name: "덴치원캡슐",
     company: "신일제약 (API 보완적용)",
-    expiry: "2028.05",
+    expiry: "2029.08",
     time: "식전 또는 식간",
     instruction: "1회 2캡슐 (1일 3회)",
     category: "치통 치료제 (생약)",
@@ -1008,7 +1016,7 @@ window.editScanResult = function() {
           </div>
           <div>
             <label class="block text-[11px] font-bold text-on-surface-variant mb-1">유통기한</label>
-            <input type="text" id="edit-expiry" value="${data.expiry || '2028.05'}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
+            <input type="text" id="edit-expiry" value="${data.expiry || getDefaultExpiryDate()}" class="w-full text-xs bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2 text-on-surface focus:outline-none focus:border-primary"/>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -1057,7 +1065,7 @@ window.submitEditedMedication = function() {
     id: Date.now(),
     name,
     company: document.getElementById('edit-company').value.trim() || base.company || '직접 등록',
-    expiry: document.getElementById('edit-expiry').value.trim() || base.expiry || '2028.05',
+    expiry: document.getElementById('edit-expiry').value.trim() || base.expiry || getDefaultExpiryDate(),
     time: document.getElementById('edit-time').value,
     instruction: document.getElementById('edit-instruction').value,
     category: document.getElementById('edit-category').value,
@@ -1147,7 +1155,7 @@ window.addMedFromScan = function(key) {
     id: Date.now(),
     name: sourceData.name,
     company: sourceData.company,
-    expiry: sourceData.expiry || "2028.05",
+    expiry: sourceData.expiry || getDefaultExpiryDate(),
     time: sourceData.time || "오전 8시",
     instruction: sourceData.instruction || "식후 30분",
     category: sourceData.category || "일반 의약품",
@@ -1239,7 +1247,7 @@ window.queryPublicAPI = async function() {
       const match = {
         name: item.ITEM_NAME,
         company: item.ENTP_NAME,
-        expiry: "2028.05", // Default placeholder for API response
+        expiry: getDefaultExpiryDate(), // Default placeholder for API response
         time: item.USE_METHOD_OUTLINE ? "복용량 참고" : "오전 8시",
         instruction: item.USE_METHOD_OUTLINE ? (item.USE_METHOD_OUTLINE.length > 28 ? item.USE_METHOD_OUTLINE.slice(0, 28) + '...' : item.USE_METHOD_OUTLINE) : "식후 30분",
         category: "일반 의약품",
@@ -2414,29 +2422,56 @@ window.exportUserData = function() {
     };
     
     const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
     
-    const now = new Date();
-    const dateStr = now.getFullYear() + 
-                    String(now.getMonth() + 1).padStart(2, '0') + 
-                    String(now.getDate()).padStart(2, '0') + "_" + 
-                    String(now.getHours()).padStart(2, '0') + 
-                    String(now.getMinutes()).padStart(2, '0');
-                    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `YakSsoog_backup_${dateStr}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast("✅ 복약 데이터 백업 파일이 생성되었습니다.");
+    // Check if running on local development server to save on host directly
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) {
+      fetch('/api/export-save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: jsonStr
+      })
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.success) {
+          showToast("✅ 로컬 json-bak 폴더에 백업을 저장하고 app.js를 갱신했습니다!");
+        } else {
+          throw new Error(resData.error || "알 수 없는 오류");
+        }
+      })
+      .catch(err => {
+        console.warn("Local server export save failed, falling back to download:", err);
+        // Fallback to standard browser download
+        triggerBrowserDownload(jsonStr);
+      });
+    } else {
+      triggerBrowserDownload(jsonStr);
+    }
   } catch (e) {
     showToast("❌ 백업 실패: 데이터를 불러올 수 없습니다.");
     console.error(e);
   }
 };
+
+function triggerBrowserDownload(jsonStr) {
+  const blob = new Blob([jsonStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const now = new Date();
+  const dateStr = now.getFullYear() + 
+                  String(now.getMonth() + 1).padStart(2, '0') + 
+                  String(now.getDate()).padStart(2, '0') + "_" + 
+                  String(now.getHours()).padStart(2, '0') + 
+                  String(now.getMinutes()).padStart(2, '0');
+                  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `YakSsoog_backup_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("✅ 복약 데이터 백업 파일이 생성되었습니다.");
+}
 
 window.importUserData = function(input) {
   const file = input.files[0];

@@ -405,6 +405,66 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode())
 
+        # 5. SAVE EXPORTED DATA TO json-bak & UPDATE app.js
+        elif self.path == '/api/export-save':
+            try:
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                payload = json.loads(post_data.decode('utf-8'))
+                
+                # Create json-bak folder
+                json_bak_dir = os.path.join(CWD, "json-bak")
+                os.makedirs(json_bak_dir, exist_ok=True)
+                
+                # Format name: YakSsoog_backup_YYYYMMDD_HHMM.json
+                now = datetime.datetime.now()
+                date_str = now.strftime("%Y%m%d_%H%M")
+                file_name = f"YakSsoog_backup_{date_str}.json"
+                file_path = os.path.join(json_bak_dir, file_name)
+                
+                # Save backup file
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                
+                # Automatically update app.js defaults!
+                meds = payload.get("yagssoog_med_list", [])
+                alarms = payload.get("yagssoog_alarm_list", [])
+                
+                app_js_path = os.path.join(CWD, "app.js")
+                if os.path.exists(app_js_path):
+                    with open(app_js_path, "r", encoding="utf-8") as f:
+                        app_js_content = f.read()
+                    
+                    # Format to JSON string with indent
+                    meds_json = json.dumps(meds, ensure_ascii=False, indent=2)
+                    alarms_json = json.dumps(alarms, ensure_ascii=False, indent=2)
+                    
+                    # Replace DEFAULT_MEDICATIONS
+                    import re
+                    pattern_meds = r'(const\s+DEFAULT_MEDICATIONS\s*=\s*)\[[\s\S]*?\]\s*;'
+                    app_js_content = re.sub(pattern_meds, f"\\1{meds_json};", app_js_content, count=1)
+                    
+                    # Replace DEFAULT_ALARMS
+                    pattern_alarms = r'(const\s+DEFAULT_ALARMS\s*=\s*)\[[\s\S]*?\]\s*;'
+                    app_js_content = re.sub(pattern_alarms, f"\\1{alarms_json};", app_js_content, count=1)
+                    
+                    with open(app_js_path, "w", encoding="utf-8") as f:
+                        f.write(app_js_content)
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "success": True, 
+                    "filePath": file_path,
+                    "message": "데이터가 json-bak 폴더에 저장되었으며 app.js 기본값도 갱신되었습니다."
+                }, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode('utf-8'))
+
         else:
             super().do_POST()
 
