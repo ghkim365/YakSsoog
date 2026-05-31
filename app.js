@@ -540,18 +540,21 @@ function renderMedications() {
       
     cardEl.innerHTML = `
       ${!med.taken ? '<div class="absolute top-0 right-0 bg-primary-container text-on-primary-container px-3 py-1 rounded-bl-xl font-bold text-xs">다음 복용</div>' : ''}
-      <div class="w-16 h-16 shrink-0 rounded-2xl ${med.taken ? 'bg-surface-container-low' : 'bg-primary-fixed/30'} flex items-center justify-center overflow-hidden">
-        <img referrerpolicy="no-referrer" alt="${med.name}" class="w-12 h-12 object-contain" src="${med.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
-      </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-keep">${med.name}</h3>
-        <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1 break-keep">
-          ${med.company} · 유통기한: ${med.expiry}
-          ${isNearExpiry ? `<span class="material-symbols-outlined text-error text-base" style="font-variation-settings: 'FILL' 1;">warning</span>` : ''}
-        </p>
-        <div class="mt-2 flex items-center gap-2 flex-wrap">
-          <span class="text-primary font-extrabold text-[16px] break-keep">${med.time}</span>
-          <span class="bg-secondary-container/30 text-on-secondary-fixed-variant px-2 py-0.5 rounded text-xs font-semibold break-keep">${med.instruction}</span>
+      <div class="flex-1 flex items-center gap-4 min-w-0 cursor-pointer active:opacity-70 transition-opacity" onclick="showMedInfo(${med.id})">
+        <div class="w-16 h-16 shrink-0 rounded-2xl ${med.taken ? 'bg-surface-container-low' : 'bg-primary-fixed/30'} flex items-center justify-center overflow-hidden">
+          <img referrerpolicy="no-referrer" alt="${med.name}" class="w-12 h-12 object-contain" src="${med.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-keep">${med.name}</h3>
+          <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1 break-keep">
+            ${med.company} · 유통기한: ${med.expiry}
+            ${isNearExpiry ? `<span class="material-symbols-outlined text-error text-base" style="font-variation-settings: 'FILL' 1;">warning</span>` : ''}
+          </p>
+          <div class="mt-2 flex items-center gap-2 flex-wrap">
+            <span class="text-primary font-extrabold text-[16px] break-keep">${med.time}</span>
+            <span class="bg-secondary-container/30 text-on-secondary-fixed-variant px-2 py-0.5 rounded text-xs font-semibold break-keep">${med.instruction}</span>
+          </div>
+          <p class="text-[10px] text-outline mt-1.5">💡 눌러서 약 정보 보기</p>
         </div>
       </div>
       <div class="flex flex-col items-center gap-1.5 shrink-0">
@@ -578,6 +581,79 @@ function renderMedications() {
     banner.classList.add('hidden');
   }
 }
+
+// Show medication info bottom sheet
+window.showMedInfo = function(medId) {
+  const med = medications.find(m => m.id === medId);
+  if (!med) return;
+
+  const existing = document.getElementById('med-info-modal');
+  if (existing) existing.remove();
+
+  const nameEncoded = encodeURIComponent(med.name);
+  const edrug = `https://nedrug.mfds.go.kr/searchDrug?searchYN=true&itemName=${nameEncoded}`;
+  const naver = `https://search.naver.com/search.naver?query=${nameEncoded}+효능+복용법`;
+
+  const guideHtml = med.guide
+    ? `<div class="bg-primary-fixed/20 rounded-xl p-3 text-xs text-on-surface leading-relaxed">${med.guide}</div>`
+    : `<p class="text-xs text-outline text-center py-2">상세 안내문이 없습니다. 아래 링크에서 확인하세요.</p>`;
+
+  const modal = document.createElement('div');
+  modal.id = 'med-info-modal';
+  modal.className = 'fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm';
+  modal.innerHTML = `
+    <div class="w-full max-w-sm bg-surface-container-lowest rounded-t-[28px] shadow-2xl p-6 space-y-4 animate-slide-up">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-primary">
+          <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1">medication</span>
+          <h3 class="font-bold text-lg">${med.name}</h3>
+        </div>
+        <button onclick="document.getElementById('med-info-modal').remove()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline">
+          <span class="material-symbols-outlined text-base">close</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-surface-container rounded-xl p-2.5">
+          <p class="text-outline font-semibold mb-0.5">제조사</p>
+          <p class="text-on-surface font-bold">${med.company}</p>
+        </div>
+        <div class="bg-surface-container rounded-xl p-2.5">
+          <p class="text-outline font-semibold mb-0.5">분류</p>
+          <p class="text-on-surface font-bold">${med.category || '일반 의약품'}</p>
+        </div>
+        <div class="bg-surface-container rounded-xl p-2.5">
+          <p class="text-outline font-semibold mb-0.5">복용 시간</p>
+          <p class="text-primary font-bold">${med.time}</p>
+        </div>
+        <div class="bg-surface-container rounded-xl p-2.5">
+          <p class="text-outline font-semibold mb-0.5">복용법</p>
+          <p class="text-on-surface font-bold">${med.instruction}</p>
+        </div>
+        <div class="bg-surface-container rounded-xl p-2.5 col-span-2">
+          <p class="text-outline font-semibold mb-0.5">유통기한</p>
+          <p class="text-on-surface font-bold">${med.expiry}</p>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <p class="text-xs font-bold text-on-surface-variant">💊 복용 안내</p>
+        ${guideHtml}
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <a href="${edrug}" target="_blank" class="flex items-center justify-center gap-1.5 py-2.5 bg-primary text-white font-bold rounded-xl text-xs active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-sm">local_pharmacy</span>식약처 검색
+        </a>
+        <a href="${naver}" target="_blank" class="flex items-center justify-center gap-1.5 py-2.5 border border-outline-variant/60 text-on-surface font-bold rounded-xl text-xs active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-sm">search</span>네이버 검색
+        </a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+};
 
 // Edit a medication — open prefilled modal overlay
 window.editMedication = function(medId) {
