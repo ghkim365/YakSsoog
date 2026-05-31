@@ -92,18 +92,42 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { query } = req.query;
+  const { query, action } = req.query;
+
+  // Load API key from env or .env file
+  let serviceKey = process.env.YAKSSOOG_API_KEY;
+  if (!serviceKey) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const envPath = path.join(process.cwd(), '.env');
+      if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        const match = envContent.match(/YAKSSOOG_API_KEY\s*=\s*["']?([^"'\r\n]+)["']?/);
+        if (match) {
+          serviceKey = match[1].trim();
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to read .env file:', err.message);
+    }
+  }
+
+  if (action === 'get_default_key') {
+    return res.status(200).json({ key: serviceKey || '' });
+  }
+
   if (!query) {
     return res.status(400).json({ error: 'Query parameter "query" is required' });
   }
 
-  const serviceKey = process.env.YAKSSOOG_API_KEY || req.query.apiKey || req.query.serviceKey || req.query.key;
+  const finalServiceKey = serviceKey || req.query.apiKey || req.query.serviceKey || req.query.key;
   let apiSuccess = false;
   let apiData = null;
 
-  if (serviceKey) {
+  if (finalServiceKey) {
     try {
-      const finalKey = serviceKey.includes('%') ? serviceKey : encodeURIComponent(serviceKey);
+      const finalKey = finalServiceKey.includes('%') ? finalServiceKey : encodeURIComponent(finalServiceKey);
       const url = `https://apis.data.go.kr/1471000/MdcinGrnIdntfcInfoService01/getMdcinGrnIdntfcInfoList01?serviceKey=${finalKey}&item_name=${encodeURIComponent(query)}&pageNo=1&numOfRows=1&type=json`;
       const apiRes = await fetch(url);
       if (apiRes.ok) {

@@ -299,10 +299,25 @@ function loadAppState() {
   }
 
   // Load API Key
-  const storedApiKey = localStorage.getItem('yagssoog_api_key') || '';
+  let storedApiKey = localStorage.getItem('yagssoog_api_key') || '';
   const keyInput = document.getElementById('api-key-input');
   if (keyInput) {
     keyInput.value = storedApiKey;
+  }
+  
+  if (!storedApiKey) {
+    // Fetch default key from server config
+    fetch('/api/search?action=get_default_key')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.key && !localStorage.getItem('yagssoog_api_key')) {
+          localStorage.setItem('yagssoog_api_key', data.key);
+          if (keyInput) {
+            keyInput.value = data.key;
+          }
+        }
+      })
+      .catch(err => console.warn('Failed to fetch default api key:', err));
   }
 
   // Load Notification Repeat Settings

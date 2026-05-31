@@ -507,13 +507,7 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 parsed = urlparse(self.path)
                 query_params = parse_qs(parsed.query)
                 query = query_params.get('query', [''])[0]
-                
-                if not query:
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"success": False, "error": "query parameter is required"}, ensure_ascii=False).encode('utf-8'))
-                    return
+                action = query_params.get('action', [''])[0]
                 
                 # Read from .env file if it exists
                 env_key = ""
@@ -524,9 +518,25 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                             if line.strip().startswith("YAKSSOOG_API_KEY="):
                                 env_key = line.strip().split("=", 1)[1].strip('"').strip("'").strip()
                 
-                # Fallback to os.environ or client passed key
+                # Fallback to os.environ
                 if not env_key:
                     env_key = os.environ.get("YAKSSOOG_API_KEY", "")
+
+                if action == 'get_default_key':
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"key": env_key}, ensure_ascii=False).encode('utf-8'))
+                    return
+                
+                if not query:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"success": False, "error": "query parameter is required"}, ensure_ascii=False).encode('utf-8'))
+                    return
+                
+                # Fallback to client passed key if no environment/local key is set
                 if not env_key:
                     env_key = query_params.get('apiKey', [''])[0] or query_params.get('serviceKey', [''])[0] or query_params.get('key', [''])[0]
                 
