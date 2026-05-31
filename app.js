@@ -2002,7 +2002,26 @@ window.saveApiKey = function() {
 window.resetWholeApp = function() {
   if (confirm("애플리케이션의 모든 데이터를 초기화하고 처음 상태로 되돌리시겠습니까?")) {
     localStorage.clear();
-    showToast("데이터를 초기화했습니다. 재로딩 중...");
+    
+    // Clear Service Worker Registrations
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+    
+    // Clear Cache Storage
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) {
+          caches.delete(name);
+        }
+      });
+    }
+    
+    showToast("데이터 및 캐시를 초기화했습니다. 재로딩 중...");
     setTimeout(() => {
       window.location.reload();
     }, 800);
