@@ -591,7 +591,7 @@ function renderMedications() {
     // Main card styling container
     const cardEl = document.createElement('div');
     cardEl.className = med.taken
-      ? "pill-card-shadow bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98] relative"
+      ? "pill-card-shadow bg-surface-container-lowest border-2 border-tertiary/30 rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98] relative"
       : "bg-surface-container-lowest border-2 border-primary-container rounded-2xl p-5 flex items-center gap-4 transition-transform active:scale-[0.98] relative overflow-hidden active-pill-glow";
       
     cardEl.innerHTML = `
@@ -601,7 +601,7 @@ function renderMedications() {
           <img referrerpolicy="no-referrer" alt="${med.name}" class="w-12 h-12 object-contain" src="${med.img}" onerror="this.src='https://img.icons8.com/color/96/pill.png'"/>
         </div>
         <div class="flex-1 min-w-0">
-          <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-keep">${med.name}</h3>
+          <h3 class="font-headline-md text-[18px] text-on-surface leading-tight font-bold break-all">${med.name}</h3>
           <p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1 break-keep">
             ${med.company} · 유통기한: ${med.expiry}
             ${isNearExpiry ? `<span class="material-symbols-outlined text-error text-base" style="font-variation-settings: 'FILL' 1;">warning</span>` : ''}
