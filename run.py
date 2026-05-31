@@ -524,9 +524,11 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                             if line.strip().startswith("YAKSSOOG_API_KEY="):
                                 env_key = line.strip().split("=", 1)[1].strip('"').strip("'").strip()
                 
-                # Fallback to os.environ
+                # Fallback to os.environ or client passed key
                 if not env_key:
                     env_key = os.environ.get("YAKSSOOG_API_KEY", "")
+                if not env_key:
+                    env_key = query_params.get('apiKey', [''])[0] or query_params.get('serviceKey', [''])[0] or query_params.get('key', [''])[0]
                 
                 api_success = False
                 res_body = None

@@ -1205,7 +1205,8 @@ window.queryPublicAPI = async function() {
     
     // Attempt 1: Try secure Serverless Proxy (/api/search)
     try {
-      const proxyUrl = `/api/search?query=${encodeURIComponent(query)}`;
+      const storedKey = localStorage.getItem('yagssoog_api_key') || '';
+      const proxyUrl = `/api/search?query=${encodeURIComponent(query)}&apiKey=${encodeURIComponent(storedKey)}`;
       response = await fetch(proxyUrl);
       if (response.ok) {
         json = await response.json();

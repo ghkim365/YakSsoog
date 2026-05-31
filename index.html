@@ -506,8 +506,8 @@
           <div id="guardian-phone-container" class="hidden border-t border-outline-variant/20 pt-4 space-y-3">
             <p class="font-label-lg text-on-surface-variant">보호자 연락처</p>
             <div class="flex gap-2">
-              <input type="tel" id="guardian-phone-input" placeholder="010-0000-0000" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
-              <button onclick="saveGuardianPhone()" class="btn-active-depress bg-primary text-on-primary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+              <input type="tel" id="guardian-phone-input" placeholder="010-0000-0000" class="flex-1 min-w-0 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+              <button onclick="saveGuardianPhone()" class="btn-active-depress bg-primary text-on-primary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all shrink-0">저장</button>
             </div>
             <div class="flex justify-between items-center pt-1">
               <p class="text-xs text-outline">복용 미확인 30분 후 자동 발송</p>
@@ -545,8 +545,8 @@
           <div class="space-y-2 px-2">
             <label class="block font-label-lg text-on-surface-variant">공공데이터 인증키 (Service Key)</label>
             <div class="flex gap-2">
-              <input type="text" id="api-key-input" placeholder="인증키(Service Key) 입력" style="-webkit-text-security: disc;" autocomplete="off" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
-              <button onclick="saveApiKey()" class="btn-active-depress bg-secondary text-on-secondary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
+              <input type="text" id="api-key-input" placeholder="인증키(Service Key) 입력" style="-webkit-text-security: disc;" autocomplete="off" class="flex-1 min-w-0 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+              <button onclick="saveApiKey()" class="btn-active-depress bg-secondary text-on-secondary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all shrink-0">저장</button>
             </div>
             <p class="text-[10px] text-outline leading-normal mt-2">
               ※ 식약처 데이터 실시간 연동을 위해 <a href="https://www.data.go.kr" target="_blank" class="underline text-primary font-bold">공공데이터포털</a>에서 발급받은 'e약은요' 서비스키를 등록하세요. 키가 비어있거나 올바르지 않은 경우, 안전을 위해 직접 등록 및 공식 정보 검색 서비스로 대체 안내됩니다.

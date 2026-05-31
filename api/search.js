@@ -97,7 +97,7 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'Query parameter "query" is required' });
   }
 
-  const serviceKey = process.env.YAKSSOOG_API_KEY;
+  const serviceKey = process.env.YAKSSOOG_API_KEY || req.query.apiKey || req.query.serviceKey || req.query.key;
   let apiSuccess = false;
   let apiData = null;
 
