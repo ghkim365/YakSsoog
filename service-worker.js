@@ -1,4 +1,4 @@
-const CACHE_NAME = 'yagssoog-cache-v4';
+const CACHE_NAME = 'yagssoog-cache-v5';
 const ASSETS = [
   '/',
   '/index.html',
