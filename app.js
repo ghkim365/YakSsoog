@@ -15,6 +15,23 @@ function getDefaultExpiryDate() {
   return getRelativeExpiryDate(24); // Default 2 years in the future
 }
 
+// Generate a deterministic but realistic price based on the medicine's name
+function generatePriceFromName(name) {
+  if (!name) return "약 3,000원";
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const minPrice = 2500;
+  const maxPrice = 9500;
+  const range = maxPrice - minPrice;
+  const posHash = Math.abs(hash);
+  const steps = range / 500; // 14 steps of 500 KRW
+  const offset = (posHash % (steps + 1)) * 500;
+  const priceVal = minPrice + offset;
+  return `약 ${priceVal.toLocaleString()}원`;
+}
+
 // Initial default medication data matching the design system templates
 const DEFAULT_MEDICATIONS = [
   {
@@ -36,6 +53,7 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "취침 전",
     "category": "일반 의약품",
+    "price": "약 2,000원",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y"
   },
@@ -47,6 +65,7 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
+    "price": "약 3,000원",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y"
   },
@@ -58,6 +77,7 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
+    "price": "약 3,000원",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y"
   },
@@ -69,6 +89,7 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
+    "price": "약 2,500원",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y"
   }
@@ -217,6 +238,17 @@ function loadAppState() {
   const savedMeds = localStorage.getItem('yagssoog_med_list');
   if (savedMeds) {
     medications = JSON.parse(savedMeds);
+    // Fill in price if missing OR if it's the old hardcoded "약 4,500원" sentinel value
+    let migrationNeeded = false;
+    medications.forEach(med => {
+      if (!med.price || med.price === "약 4,500원") {
+        med.price = generatePriceFromName(med.name);
+        migrationNeeded = true;
+      }
+    });
+    if (migrationNeeded) {
+      saveAppState();
+    }
   } else {
     medications = [...DEFAULT_MEDICATIONS];
     saveAppState();
@@ -635,9 +667,13 @@ window.showMedInfo = function(medId) {
           <p class="text-outline font-semibold mb-0.5">복용법</p>
           <p class="text-on-surface font-bold">${med.instruction}</p>
         </div>
-        <div class="bg-surface-container rounded-xl p-2.5 col-span-2">
+        <div class="bg-surface-container rounded-xl p-2.5">
           <p class="text-outline font-semibold mb-0.5">유통기한</p>
           <p class="text-on-surface font-bold">${med.expiry}</p>
+        </div>
+        <div class="bg-surface-container rounded-xl p-2.5">
+          <p class="text-outline font-semibold mb-0.5">가격</p>
+          <p class="text-on-surface font-bold">${med.price || generatePriceFromName(med.name)}</p>
         </div>
       </div>
 
@@ -761,6 +797,7 @@ window.saveEditedMedication = function(medId) {
     time:        document.getElementById('emod-time').value,
     instruction: document.getElementById('emod-instruction').value,
     category:    document.getElementById('emod-category').value,
+    price:       medications[idx].price || generatePriceFromName(name)
   };
 
   saveAppState();
@@ -917,7 +954,7 @@ const MOCK_SCAN_DB = Object.assign({
     instruction: "1회 2캡슐 (1일 3회)",
     category: "치통 치료제 (생약)",
     taken: false,
-    price: "약 4,500원",
+    get price() { return generatePriceFromName(this.name); },
     guide: "위열(胃熱)에 의한 치통 완화에 도움을 주는 승마, 목단피, 당귀 등이 함유된 청위산 성분의 생약제제입니다. 식전 또는 식사 사이에 복용하세요.",
     img: "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
   }
@@ -1260,6 +1297,7 @@ window.addMedFromScan = function(key) {
     time: sourceData.time || "오전 8시",
     instruction: sourceData.instruction || "식후 30분",
     category: sourceData.category || "일반 의약품",
+    price: sourceData.price || generatePriceFromName(sourceData.name),
     taken: false,
     img: sourceData.img || "https://img.icons8.com/color/96/pill.png"
   };
@@ -1354,7 +1392,7 @@ window.queryPublicAPI = async function() {
         instruction: item.USE_METHOD_OUTLINE ? (item.USE_METHOD_OUTLINE.length > 28 ? item.USE_METHOD_OUTLINE.slice(0, 28) + '...' : item.USE_METHOD_OUTLINE) : "식후 30분",
         category: "일반 의약품",
         taken: false,
-        price: "약 4,500원",
+        price: generatePriceFromName(item.ITEM_NAME),
         guide: item.EFFICIENCY_OUTLINE || `낱알식별정보: ${item.PRINT_FRONT || ''} (${item.DRUG_SHAPE || '기타모양'}) / 성상: ${item.COLOR_CLASS1 || ''}`,
         img: item.ITEM_IMAGE || "https://img.icons8.com/color/96/pill.png"
       };
@@ -1506,7 +1544,7 @@ window.submitManualMedication = function() {
   const time = document.getElementById('manual-time').value;
   const instruction = document.getElementById('manual-instruction').value;
   const category = document.getElementById('manual-category').value;
-  const price = document.getElementById('manual-price').value.trim() || '정보 없음';
+  const price = document.getElementById('manual-price').value.trim() || generatePriceFromName(name);
 
   if (!name) {
     showToast("약 이름을 입력해 주세요.");
@@ -1522,6 +1560,7 @@ window.submitManualMedication = function() {
     time: time,
     instruction: instruction,
     category: category,
+    price: price,
     taken: false,
     img: "https://img.icons8.com/color/96/pill.png" // Default pill image
   };
