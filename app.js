@@ -39,11 +39,12 @@ const DEFAULT_MEDICATIONS = [
     "name": "덴치원캡슐",
     "company": "신일제약 (API 보완적용)",
     "expiry": "2028.05",
-    "time": "식전 또는 식간",
-    "instruction": "1회 2캡슐 (1일 3회)",
+    "time": "필요시 복용",
+    "instruction": "공복 복용",
     "category": "치통 치료제 (생약)",
     "taken": false,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 5,500원"
   },
   {
     "id": 1780196999113,
@@ -51,11 +52,11 @@ const DEFAULT_MEDICATIONS = [
     "company": "알 수 없음",
     "expiry": "2028.05",
     "time": "필요시 복용",
-    "instruction": "취침 전",
+    "instruction": "공복 복용",
     "category": "일반 의약품",
-    "price": "약 2,000원",
     "taken": false,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y"
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 7,000원"
   },
   {
     "id": 1780198011377,
@@ -65,9 +66,9 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
-    "price": "약 3,000원",
     "taken": false,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y"
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 8,500원"
   },
   {
     "id": 1780198056443,
@@ -77,9 +78,9 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
-    "price": "약 3,000원",
     "taken": false,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y"
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 7,000원"
   },
   {
     "id": 1780198139254,
@@ -89,44 +90,62 @@ const DEFAULT_MEDICATIONS = [
     "time": "필요시 복용",
     "instruction": "식후 30분",
     "category": "일반 의약품",
-    "price": "약 2,500원",
     "taken": false,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y"
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 9,500원"
+  },
+  {
+    "id": 1780235928683,
+    "name": "카나브정30mg(피마사르탄칼륨삼수화물)",
+    "company": "(주)보령",
+    "expiry": "2028.05",
+    "time": "오전 8시",
+    "instruction": "식후 30분",
+    "category": "일반 의약품",
+    "taken": true,
+    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114101707545_RRO7SSQEE.jpg/201207542.jpg?type=m4500_4500_fst_n&wm=Y",
+    "price": "약 9,000원"
   }
 ];
 
 // Default Alarm settings matching _4/code.html mockups
 const DEFAULT_ALARMS = [
   {
-    "id": 1,
-    "medName": "혈압약 (아모디핀)",
+    "id": 1780235959108,
+    "medName": "카나브정30mg(피마사르탄칼륨삼수화물)",
     "time": "08:00",
     "period": "AM",
     "active": true,
-    "soundType": "musical",
+    "soundType": "normal",
     "icon": "pill",
     "color": "primary"
   },
   {
-    "id": 2,
-    "medName": "종합 비타민",
-    "time": "12:30",
-    "period": "PM",
-    "active": false,
+    "id": 1780235993156,
+    "medName": "보령알벤다졸정",
+    "time": "08:00",
+    "period": "AM",
+    "active": true,
     "soundType": "normal",
-    "icon": "medication",
-    "color": "secondary"
+    "icon": "pill",
+    "color": "primary"
   },
   {
-    "id": 3,
-    "medName": "수면 보조제",
-    "time": "10:00",
-    "period": "PM",
+    "id": 1780237127533,
+    "medName": "덴치원캡슐",
+    "time": "08:00",
+    "period": "AM",
     "active": true,
-    "soundType": "melody",
-    "icon": "nightlight",
-    "color": "tertiary"
+    "soundType": "normal",
+    "icon": "pill",
+    "color": "primary"
   }
+];
+
+const DOSAGE_TIME_OPTIONS = [
+  ...Array.from({length: 12}, (_, i) => `오전 ${i + 1}시`),
+  ...Array.from({length: 12}, (_, i) => `오후 ${i + 1}시`),
+  "필요시 복용"
 ];
 
 // App State Cache
@@ -705,7 +724,7 @@ window.editMedication = function(medId) {
   const existing = document.getElementById('edit-med-modal');
   if (existing) existing.remove();
 
-  const timeOptions    = ['오전 8시', '오후 1시', '오후 6시', '오후 9시', '필요시 복용'];
+  const timeOptions    = DOSAGE_TIME_OPTIONS;
   const instrOptions   = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전', '식전 또는 식간'];
   const catOptions     = ['일반 의약품', '전문의약품', '영양제', '기타'];
   const makeOpts = (opts, cur) => {
@@ -1109,7 +1128,7 @@ window.editScanResult = function() {
   const container = document.getElementById('scan-result-container');
   if (!container) return;
   
-  const timeOptions = ['오전 8시', '오후 1시', '오후 6시', '오후 9시', '필요시 복용'];
+  const timeOptions = DOSAGE_TIME_OPTIONS;
   const instrOptions = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전'];
   const catOptions  = ['일반 의약품', '전문의약품', '영양제', '기타'];
   
@@ -1849,38 +1868,260 @@ window.testAlarmSound = function(type) {
 };
 
 // Create a new alarm dynamically from list of medications
+window.onMedSelectionChange = function(val) {
+  const nameInput = document.getElementById('create-alarm-name');
+  const nameContainer = document.getElementById('create-alarm-name-container');
+  const dosageTimeSelect = document.getElementById('create-alarm-dosage-time');
+  const dosageInstrSelect = document.getElementById('create-alarm-dosage-instruction');
+  
+  if (val === '_custom') {
+    if (nameContainer) nameContainer.classList.remove('hidden');
+    if (nameInput) nameInput.value = '';
+  } else {
+    if (nameContainer) nameContainer.classList.add('hidden');
+    if (nameInput) nameInput.value = val;
+    const med = medications.find(m => m.name === val);
+    if (med) {
+      if (dosageTimeSelect) dosageTimeSelect.value = med.time;
+      if (dosageInstrSelect) dosageInstrSelect.value = med.instruction;
+    }
+  }
+};
+
 window.createNewAlarm = function() {
-  const newAlarmId = Date.now();
-  const medNames = ["비타민C", "오메가3", "루테인", "칼슘"];
-  const randomMed = medNames[Math.floor(Math.random() * medNames.length)];
-  const randomHour = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-  const randomMin = Math.random() > 0.5 ? '00' : '30';
-  const period = Math.random() > 0.5 ? 'AM' : 'PM';
+  // Remove existing modal if any
+  document.getElementById('create-alarm-modal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'create-alarm-modal';
+  modal.className = "fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm";
   
-  const colors = ["primary", "secondary", "tertiary"];
-  const icons = ["pill", "medication", "nightlight"];
-  const selectIdx = Math.floor(Math.random() * 3);
+  // Default values
+  const defaultHour = "08";
+  const defaultMin = "00";
+  const defaultPeriod = "AM";
+  const defaultIcon = "pill";
+  const defaultColor = "primary";
+  const defaultSound = "normal";
+
+  const defaultDosageTime = medications.length > 0 ? medications[0].time : "오전 8시";
+  const defaultDosageInstruction = medications.length > 0 ? medications[0].instruction : "식후 30분";
+
+  // Build medication selection options
+  const medSelectHtml = medications.length > 0
+    ? medications.map(m => '<option value="'+m.name+'">'+m.name+'</option>').join('')
+    : '';
+
+  modal.innerHTML = `
+    <div class="w-full max-w-md bg-surface rounded-t-3xl p-6 space-y-5 shadow-2xl animate-slide-up">
+      <div class="flex items-center justify-between">
+        <h2 class="font-headline-md text-on-surface font-bold">알람 추가</h2>
+        <button onclick="document.getElementById('create-alarm-modal').remove()" class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-on-surface-variant active:scale-90 transition-all">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Med Selection -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">대상 약 선택</label>
+        <select id="create-alarm-med-select" onchange="window.onMedSelectionChange(this.value)" class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+          ${medSelectHtml}
+          <option value="_custom" ${medications.length === 0 ? 'selected' : ''}>직접 이름 입력...</option>
+        </select>
+      </div>
+
+      <!-- Custom Med Name Input (hidden by default unless Custom is selected) -->
+      <div id="create-alarm-name-container" class="${medications.length === 0 ? '' : 'hidden'} space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">약 이름 직접 입력</label>
+        <input id="create-alarm-name" type="text" placeholder="예: 종합 비타민" value="${medications.length > 0 ? medications[0].name : ''}"
+          class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+
+      <!-- Dosage Time & Instruction -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-on-surface-variant">복용 시간</label>
+          <select id="create-alarm-dosage-time" class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${DOSAGE_TIME_OPTIONS.map(o => '<option value="'+o+'" '+(o===defaultDosageTime?'selected':'')+'>'+o+'</option>').join('')}
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-on-surface-variant">복용법</label>
+          <select id="create-alarm-dosage-instruction" class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전', '식전 또는 식간'].map(o => '<option value="'+o+'" '+(o===defaultDosageInstruction?'selected':'')+'>'+o+'</option>').join('')}
+          </select>
+        </div>
+      </div>
+
+      <!-- Time -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">알림 설정 시간</label>
+        <div class="flex gap-2">
+          <select id="create-alarm-hour" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${Array.from({length:12},(_,i)=>{const v=String(i+1).padStart(2,'0');return '<option value="'+v+'" '+(v===defaultHour?'selected':'')+'>'+v+'</option>'}).join('')}
+          </select>
+          <select id="create-alarm-min" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${['00','05','10','15','20','25','30','35','40','45','50','55'].map(v=>'<option value="'+v+'" '+(v===defaultMin?'selected':'')+'>'+v+'</option>').join('')}
+          </select>
+          <select id="create-alarm-period" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            <option value="AM" ${defaultPeriod==='AM'?'selected':''}>AM</option>
+            <option value="PM" ${defaultPeriod==='PM'?'selected':''}>PM</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Icon & Color -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">아이콘 / 색상</label>
+        <div class="flex gap-2">
+          ${[
+            {icon:'pill', color:'primary'},
+            {icon:'medication', color:'secondary'},
+            {icon:'nightlight', color:'tertiary'},
+            {icon:'vaccines', color:'primary'},
+            {icon:'medication_liquid', color:'secondary'},
+            {icon:'ecg_heart', color:'tertiary'}
+          ].map(opt => `
+            <button onclick="selectCreateAlarmIcon('${opt.icon}','${opt.color}')" id="create-icon-${opt.icon}"
+              class="flex-1 flex flex-col items-center gap-1 py-2.5 rounded-xl border ${defaultIcon===opt.icon ? 'border-2 border-primary bg-primary-container/10' : 'border-outline-variant/30 bg-surface-container'} active:scale-90 transition-all">
+              <span class="material-symbols-outlined text-${opt.color} text-xl" style="font-variation-settings:'FILL' 1;">${opt.icon}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Sound -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-on-surface-variant">알림 소리</label>
+        <div class="grid grid-cols-3 gap-2">
+          ${[
+            {val:'elderly', label:'어르신', icon:'elderly'},
+            {val:'normal',  label:'일반',   icon:'notifications'},
+            {val:'melody',  label:'멜로디', icon:'child_care'},
+            {val:'pulsing', label:'경고음', icon:'warning'},
+            {val:'musical', label:'벨소리', icon:'music_note'}
+          ].map(s => `
+            <button onclick="selectCreateAlarmSound('${s.val}')" id="create-sound-${s.val}"
+              class="py-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-bold transition-all active:scale-95 ${defaultSound===s.val ? 'border-2 border-primary bg-primary-container/10 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant'}">
+              <span class="material-symbols-outlined text-base">${s.icon}</span>
+              ${s.label}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <button onclick="saveNewAlarm()"
+        class="w-full py-3.5 bg-primary text-on-primary font-bold rounded-xl text-sm active:scale-95 transition-all shadow-md">
+        등록하기
+      </button>
+    </div>
+  `;
+
+  // Store selected icon/color/sound in temp data attributes
+  modal.dataset.selectedIcon  = defaultIcon;
+  modal.dataset.selectedColor = defaultColor;
+  modal.dataset.selectedSound = defaultSound;
+
+  document.body.appendChild(modal);
+
+  // Close on backdrop tap
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+};
+
+window.selectCreateAlarmIcon = function(icon, color) {
+  const modal = document.getElementById('create-alarm-modal');
+  if (!modal) return;
+  modal.dataset.selectedIcon  = icon;
+  modal.dataset.selectedColor = color;
   
+  ['pill','medication','nightlight','vaccines','medication_liquid','ecg_heart'].forEach(ic => {
+    const btn = document.getElementById(`create-icon-${ic}`);
+    if (btn) btn.className = btn.className
+      .replace('border-2 border-primary bg-primary-container/10', '')
+      .replace('border-outline-variant/30 bg-surface-container', '') + ' border-outline-variant/30 bg-surface-container';
+  });
+  const sel = document.getElementById(`create-icon-${icon}`);
+  if (sel) sel.className = sel.className
+    .replace('border-outline-variant/30 bg-surface-container', 'border-2 border-primary bg-primary-container/10');
+};
+
+window.selectCreateAlarmSound = function(soundVal) {
+  const modal = document.getElementById('create-alarm-modal');
+  if (!modal) return;
+  modal.dataset.selectedSound = soundVal;
+  ['elderly','normal','melody','pulsing','musical'].forEach(s => {
+    const btn = document.getElementById(`create-sound-${s}`);
+    if (!btn) return;
+    if (s === soundVal) {
+      btn.className = btn.className
+        .replace('border-outline-variant/30 bg-surface-container text-on-surface-variant', 'border-2 border-primary bg-primary-container/10 text-primary');
+    } else {
+      btn.className = btn.className
+        .replace('border-2 border-primary bg-primary-container/10 text-primary', 'border-outline-variant/30 bg-surface-container text-on-surface-variant');
+    }
+  });
+  testAlarmSound(soundVal);
+};
+
+window.saveNewAlarm = function() {
+  const modal = document.getElementById('create-alarm-modal');
+  if (!modal) return;
+
+  const name   = document.getElementById('create-alarm-name').value.trim();
+  const hour   = document.getElementById('create-alarm-hour').value;
+  const min    = document.getElementById('create-alarm-min').value;
+  const period = document.getElementById('create-alarm-period').value;
+  const dosageTime  = document.getElementById('create-alarm-dosage-time').value;
+  const dosageInstr = document.getElementById('create-alarm-dosage-instruction').value;
+
+  if (!name) { showToast("⚠️ 약 이름을 입력해 주세요."); return; }
+
+  // 1. Save or Update medication info
+  const existingMedIdx = medications.findIndex(m => m.name === name);
+  if (existingMedIdx !== -1) {
+    medications[existingMedIdx].time = dosageTime;
+    medications[existingMedIdx].instruction = dosageInstr;
+  } else {
+    // Create new medication entry so it shows on Home screen!
+    const newMed = {
+      id: Date.now(),
+      name: name,
+      company: "직접 등록",
+      expiry: "2028.05",
+      time: dosageTime,
+      instruction: dosageInstr,
+      category: "일반 의약품",
+      price: generatePriceFromName(name),
+      taken: false,
+      img: "https://img.icons8.com/color/96/pill.png"
+    };
+    medications.push(newMed);
+  }
+  saveAppState();
+  renderMedications();
+  updateProgress();
+
+  // 2. Create the alarm
   const newAlarm = {
-    id: newAlarmId,
-    medName: `${randomMed} 보충제`,
-    time: `${randomHour}:${randomMin}`,
+    id: Date.now(),
+    medName: name,
+    time: `${hour}:${min}`,
     period: period,
     active: true,
-    soundType: "normal",
-    icon: icons[selectIdx],
-    color: colors[selectIdx]
+    soundType: modal.dataset.selectedSound || "normal",
+    icon: modal.dataset.selectedIcon || "pill",
+    color: modal.dataset.selectedColor || "primary"
   };
-  
+
   alarms.push(newAlarm);
   saveAlarmsState();
   renderAlarms();
-  
-  showToast(`신규 알람이 생성되었습니다! (${newAlarm.medName})`);
-  
-  // Play the chime of the new alarm sound
-  testAlarmSound("normal");
+  modal.remove();
+  showToast(`✅ 신규 알람이 생성되었습니다! (${name})`);
+  testAlarmSound(newAlarm.soundType);
 };
+
 
 // Delete alarm with confirmation
 window.deleteAlarm = function(id) {
@@ -1921,6 +2162,11 @@ window.editAlarm = function(id) {
 
   const [h, m] = alarm.time.split(':');
 
+  // Find medication info to prefill dosage time and method
+  const med = medications.find(m => m.name === alarm.medName);
+  const currentDosageTime = med ? med.time : "오전 8시";
+  const currentDosageInstr = med ? med.instruction : "식후 30분";
+
   const modal = document.createElement('div');
   modal.id = 'edit-alarm-modal';
   modal.className = "fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm";
@@ -1940,15 +2186,31 @@ window.editAlarm = function(id) {
           class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary" />
       </div>
 
+      <!-- Dosage Time & Instruction -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-on-surface-variant">복용 시간</label>
+          <select id="edit-alarm-dosage-time" class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${DOSAGE_TIME_OPTIONS.map(o => '<option value="'+o+'" '+(o===currentDosageTime?'selected':'')+'>'+o+'</option>').join('')}
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-on-surface-variant">복용법</label>
+          <select id="edit-alarm-dosage-instruction" class="w-full bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
+            ${['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전', '식전 또는 식간'].map(o => '<option value="'+o+'" '+(o===currentDosageInstr?'selected':'')+'>'+o+'</option>').join('')}
+          </select>
+        </div>
+      </div>
+
       <!-- Time -->
       <div class="space-y-1.5">
-        <label class="block text-xs font-bold text-on-surface-variant">시간</label>
+        <label class="block text-xs font-bold text-on-surface-variant">알림 설정 시간</label>
         <div class="flex gap-2">
           <select id="edit-alarm-hour" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
-            ${Array.from({length:12},(_,i)=>{const v=String(i+1).padStart(2,'0');return `<option value="${v}" ${v===h?'selected':''}>${v}</option>`}).join('')}
+            ${Array.from({length:12},(_,i)=>{const v=String(i+1).padStart(2,'0');return '<option value="'+v+'" '+(v===h?'selected':'')+'>'+v+'</option>'}).join('')}
           </select>
           <select id="edit-alarm-min" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
-            ${['00','05','10','15','20','25','30','35','40','45','50','55'].map(v=>`<option value="${v}" ${v===m?'selected':''}>${v}</option>`).join('')}
+            ${['00','05','10','15','20','25','30','35','40','45','50','55'].map(v=>'<option value="'+v+'" '+(v===m?'selected':'')+'>'+v+'</option>').join('')}
           </select>
           <select id="edit-alarm-period" class="flex-1 bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-3 text-sm text-on-surface focus:outline-none focus:border-primary">
             <option value="AM" ${alarm.period==='AM'?'selected':''}>AM</option>
@@ -2059,12 +2321,15 @@ window.saveEditedAlarm = function(id) {
   const hour   = document.getElementById('edit-alarm-hour').value;
   const min    = document.getElementById('edit-alarm-min').value;
   const period = document.getElementById('edit-alarm-period').value;
+  const dosageTime  = document.getElementById('edit-alarm-dosage-time').value;
+  const dosageInstr = document.getElementById('edit-alarm-dosage-instruction').value;
 
   if (!name) { showToast("⚠️ 약 이름을 입력해 주세요."); return; }
 
   const alarm = alarms.find(a => a.id === id);
   if (!alarm) return;
 
+  const oldName = alarm.medName;
   alarm.medName   = name;
   alarm.time      = `${hour}:${min}`;
   alarm.period    = period;
@@ -2072,10 +2337,37 @@ window.saveEditedAlarm = function(id) {
   alarm.color     = modal.dataset.selectedColor || alarm.color;
   alarm.soundType = modal.dataset.selectedSound || alarm.soundType;
 
+  // 1. Update/Save medication details
+  const med = medications.find(m => m.name === oldName);
+  if (med) {
+    med.name = name; // Update name in case they renamed it
+    med.time = dosageTime;
+    med.instruction = dosageInstr;
+  } else {
+    // Create new medication
+    const newMed = {
+      id: Date.now(),
+      name: name,
+      company: "직접 등록",
+      expiry: "2028.05",
+      time: dosageTime,
+      instruction: dosageInstr,
+      category: "일반 의약품",
+      price: generatePriceFromName(name),
+      taken: false,
+      img: "https://img.icons8.com/color/96/pill.png"
+    };
+    medications.push(newMed);
+  }
+
+  saveAppState();
+  renderMedications();
+  updateProgress();
+
   saveAlarmsState();
   renderAlarms();
   modal.remove();
-  showToast("✅ 알람이 수정되었습니다.");
+  showToast("✅ 알람과 복용 정보가 수정되었습니다.");
 };
 
 // ==========================================

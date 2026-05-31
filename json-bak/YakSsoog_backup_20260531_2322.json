@@ -1,0 +1,120 @@
+{
+  "yagssoog_med_list": [
+    {
+      "id": 1780195993722,
+      "name": "덴치원캡슐",
+      "company": "신일제약 (API 보완적용)",
+      "expiry": "2028.05",
+      "time": "필요시 복용",
+      "instruction": "공복 복용",
+      "category": "치통 치료제 (생약)",
+      "taken": false,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 5,500원"
+    },
+    {
+      "id": 1780196999113,
+      "name": "보령알벤다졸정",
+      "company": "알 수 없음",
+      "expiry": "2028.05",
+      "time": "필요시 복용",
+      "instruction": "공복 복용",
+      "category": "일반 의약품",
+      "taken": false,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 7,000원"
+    },
+    {
+      "id": 1780198011377,
+      "name": "콜록노즈연질캡슐",
+      "company": "GC녹십자",
+      "expiry": "2028.05",
+      "time": "필요시 복용",
+      "instruction": "식후 30분",
+      "category": "일반 의약품",
+      "taken": false,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 8,500원"
+    },
+    {
+      "id": 1780198056443,
+      "name": "파이네신캡슐(은교산)",
+      "company": "정우신약",
+      "expiry": "2028.05",
+      "time": "필요시 복용",
+      "instruction": "식후 30분",
+      "category": "일반 의약품",
+      "taken": false,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 7,000원"
+    },
+    {
+      "id": 1780198139254,
+      "name": "아르펜정",
+      "company": "경남제약(주)",
+      "expiry": "2028.05",
+      "time": "필요시 복용",
+      "instruction": "식후 30분",
+      "category": "일반 의약품",
+      "taken": false,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 9,500원"
+    },
+    {
+      "id": 1780235928683,
+      "name": "카나브정30mg(피마사르탄칼륨삼수화물)",
+      "company": "(주)보령",
+      "expiry": "2028.05",
+      "time": "오전 8시",
+      "instruction": "식후 30분",
+      "category": "일반 의약품",
+      "taken": true,
+      "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114101707545_RRO7SSQEE.jpg/201207542.jpg?type=m4500_4500_fst_n&wm=Y",
+      "price": "약 9,000원"
+    }
+  ],
+  "yagssoog_alarm_list": [
+    {
+      "id": 1780235959108,
+      "medName": "카나브정30mg(피마사르탄칼륨삼수화물)",
+      "time": "08:00",
+      "period": "AM",
+      "active": true,
+      "soundType": "normal",
+      "icon": "pill",
+      "color": "primary"
+    },
+    {
+      "id": 1780235993156,
+      "medName": "보령알벤다졸정",
+      "time": "08:00",
+      "period": "AM",
+      "active": true,
+      "soundType": "normal",
+      "icon": "pill",
+      "color": "primary"
+    },
+    {
+      "id": 1780237127533,
+      "medName": "덴치원캡슐",
+      "time": "08:00",
+      "period": "AM",
+      "active": true,
+      "soundType": "normal",
+      "icon": "pill",
+      "color": "primary"
+    }
+  ],
+  "yagssoog_font_scale": "17",
+  "yagssoog_font_family": "Pretendard",
+  "yagssoog_guardian_enabled": "false",
+  "yagssoog_guardian_phone": "",
+  "yagssoog_api_key": "9fe3ddde51d5cb0d90b7a7a74b7acac89e2f97a12a283963c54da1e20f5e8dbd",
+  "yagssoog_repeat_settings": {
+    "enabled": true,
+    "interval": 10,
+    "count": 5
+  },
+  "backup_signature": "yagssoog_user_backup_file",
+  "backup_date": "2026-05-31T14:22:40.849Z"
+}
