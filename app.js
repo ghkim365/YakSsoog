@@ -1253,7 +1253,7 @@ window.fillFromUrl = async function() {
       statusEl.textContent = '❌ ' + (json.error || '정보를 찾지 못했습니다.');
     }
   } catch(e) {
-    statusEl.textContent = '❌ 서버 연결 실패. 로컨 서버가 실행 중인지 확인하세요.';
+    statusEl.textContent = '❌ 서버 연결 실패. URL이 올바른지 확인하세요.';
   }
 };
 
