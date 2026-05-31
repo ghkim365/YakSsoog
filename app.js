@@ -5,37 +5,59 @@
 // Initial default medication data matching the design system templates
 const DEFAULT_MEDICATIONS = [
   {
-    id: 1,
-    name: "고혈압약 (아모디핀)",
-    company: "유한양행",
-    expiry: "2026.12",
-    time: "오전 8시",
-    instruction: "식후 30분",
-    category: "혈압 관리",
-    taken: true,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAzliNaUTv398ZvxoEczed4KKO3VV2D8vkf6_Uc_HfL3qFVe4S5yoF02SdQZO5iTik74Lz46wy3NYDc_IovTwd4xQexEeOEdgBbKSld8EwAIXzcfKT7G_dvB2E9kgEplMy0q1PM1ZmHZttapcHs-tJQhnpWVayml7e5uANHp3QfqTuUFhyt59RIfB3IZ3CrZE_JZZotYJl6jMcJ1d4uQICNgTOzuTWQnZaLSpH2UGHzh6gK2GOOqdDBmllp1g6AYPLOke9wSDx1RrMw"
-  },
-  {
-    id: 2,
-    name: "당뇨약 (메트포르민)",
-    company: "종근당",
-    expiry: "2027.03",
-    time: "오후 1시",
-    instruction: "식후 즉시",
-    category: "당뇨 관리",
-    taken: true,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAZYaANYs749Dcz-CgWIhhtFy3gDiGxFDFpFLW7IP42k9gkRXJf0ERWOdtjuNFHURY6l-0rkpPbgtEcFG0AfzmwqXaAUPS2jsLRJ5vGUI6iDKFkVdjT8UTNWwiKvMn8yGBcexr2t49Pdz9QAxFj4fJ4k7f2MzIg7S08l526c6XsyHv7ZGoaVaE4hK8dMkrncTmDjgiQgLjf_Gm_vWdgQoMxsrSdO7M02tRjm1zFfXXwZYilsD4BgV5t4dvKDpmczk_x9VJ0PO8A5Yky"
-  },
-  {
-    id: 3,
-    name: "비타민D 보충제",
-    company: "종합비타민",
-    expiry: "2026.07", // Near-expiry date (Current is May 2026)
-    time: "오후 6시",
-    instruction: "식사와 함께",
-    category: "영양제",
+    id: 1780195993722,
+    name: "덴치원캡슐",
+    company: "신일제약 (API 보완적용)",
+    expiry: "2028.05",
+    time: "식전 또는 식간",
+    instruction: "1회 2캡슐 (1일 3회)",
+    category: "치통 치료제 (생약)",
     taken: false,
-    img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDDorrakPQnK9Gj1awftVNZjHf8W-3LqhdyNEN7zbBd9Tjj_J_8R61SqDbglgmj75o5GTreXrzt-BoZhQLcCWg9hyPq10xESPayX9Z4hQzV-8PVyC0O1LfMcNToOOTYNElmD6aZfDwASWsJQDXXdgTX5DL8iT84brdQ9FuMtFnsuD2FTSJUqxo2NKsK8QVOOdbp07muwG3c6pXTFlIcXZpl6AUGE35uuDncnxJzXDQlGBSDb-WvJPunW8F7SezZxx7artEIQvPf6oLf"
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y"
+  },
+  {
+    id: 1780196999113,
+    name: "보령알벤다졸정",
+    company: "알 수 없음",
+    expiry: "2028.05",
+    time: "필요시 복용",
+    instruction: "취침 전",
+    category: "일반 의약품",
+    taken: false,
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y"
+  },
+  {
+    id: 1780198011377,
+    name: "콜록노즈연질캡슐",
+    company: "GC녹십자",
+    expiry: "2028.05",
+    time: "필요시 복용",
+    instruction: "식후 30분",
+    category: "일반 의약품",
+    taken: false,
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114174642993_V5FMYJ4MM.jpg/202202409.jpg?type=m4500_4500_fst_n&wm=Y"
+  },
+  {
+    id: 1780198056443,
+    name: "파이네신캡슐(은교산)",
+    company: "정우신약",
+    expiry: "2028.05",
+    time: "필요시 복용",
+    instruction: "식후 30분",
+    category: "일반 의약품",
+    taken: false,
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072501496_TC3K91VLX.jpg/200200423.jpg?type=m4500_4500_fst_n&wm=Y"
+  },
+  {
+    id: 1780198139254,
+    name: "아르펜정",
+    company: "경남제약(주)",
+    expiry: "2028.05",
+    time: "필요시 복용",
+    instruction: "식후 30분",
+    category: "일반 의약품",
+    taken: false,
+    img: "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y"
   }
 ];
 
@@ -1916,7 +1938,9 @@ window.resetWholeApp = function() {
 // [5단계] 디자인 백업 및 복구 기능
 // ==========================================
 
-const API_SERVER_URL = "http://127.0.0.1:8001";
+const API_SERVER_URL = window.location.port === "8001" 
+  ? window.location.origin 
+  : "http://127.0.0.1:8001";
 
 // Helper to check if server is active (and to show warning if not)
 async function checkBackupServerActive() {
