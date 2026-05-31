@@ -326,6 +326,11 @@ function loadAppState() {
     repeatSettings = JSON.parse(savedRepeat);
   }
   updateRepeatSummaryText();
+
+  // Hide developer-only backup section when running on production (non-local)
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const devSection = document.getElementById('backup-restore-section');
+  if (devSection) devSection.style.display = isLocal ? '' : 'none';
 }
 
 // Save medications state
@@ -1705,10 +1710,12 @@ window.changeAlarmSound = function(id, soundType) {
 
 // Test play alert sound synthesized via Web Audio API
 window.testAlarmSound = function(type) {
-  // Create audio context
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
   const ctx = new AudioContext();
+
+  // Mobile browsers start AudioContext in suspended state — must resume first
+  ctx.resume().then(() => {
   
   if (type === 'elderly') {
     // Senior Mode: Low frequency, slow loud repeating sawtooth beeps (richer harmonics)
@@ -1799,6 +1806,7 @@ window.testAlarmSound = function(type) {
       osc.stop(ctx.currentTime + times[idx] + 0.3);
     });
   }
+  }); // end ctx.resume()
 };
 
 // Create a new alarm dynamically from list of medications
