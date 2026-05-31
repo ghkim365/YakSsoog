@@ -2,6 +2,19 @@
 // YakSsoog (약쏘옥) Core Application Script
 // ==========================================
 
+// Helper to get relative expiry date strings (in YYYY.MM format) based on current date
+function getRelativeExpiryDate(monthsInFuture) {
+  const now = new Date();
+  const future = new Date(now.getFullYear(), now.getMonth() + monthsInFuture, 1);
+  const y = future.getFullYear();
+  const m = String(future.getMonth() + 1).padStart(2, '0');
+  return `${y}.${m}`;
+}
+
+function getDefaultExpiryDate() {
+  return getRelativeExpiryDate(24); // Default 2 years in the future
+}
+
 // Initial default medication data matching the design system templates
 const DEFAULT_MEDICATIONS = [
   {
@@ -463,14 +476,6 @@ function updateHeaderForTab(tabId) {
       <span class="text-on-surface-variant font-semibold text-xs">${formattedDate}</span>
     `;
   }
-}
-
-function getDefaultExpiryDate() {
-  const now = new Date();
-  const future = new Date(now.getFullYear() + 2, now.getMonth(), 1);
-  const y = future.getFullYear();
-  const m = String(future.getMonth() + 1).padStart(2, '0');
-  return `${y}.${m}`;
 }
 
 // Check if a medication's expiry date is close to current date (less than 3 months away)

@@ -425,7 +425,6 @@ class YakSsoogRequestHandler(http.server.SimpleHTTPRequestHandler):
                 # Save backup file
                 with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(payload, f, ensure_ascii=False, indent=2)
-                
                 # Automatically update app.js defaults!
                 meds = payload.get("yagssoog_med_list", [])
                 alarms = payload.get("yagssoog_alarm_list", [])
