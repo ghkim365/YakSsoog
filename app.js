@@ -120,6 +120,26 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof window.rescheduleAllAlarms === 'function') {
     window.rescheduleAllAlarms();
   }
+
+  // Auto-open manual for first-time users or if not dismissed today
+  const manualSeen = localStorage.getItem('yagssoog_manual_seen');
+  const hideToday = localStorage.getItem('yagssoog_hide_manual_today');
+  let hideTodayBool = false;
+  if (hideToday) {
+    const diff = Date.now() - parseInt(hideToday);
+    if (diff < 24 * 60 * 60 * 1000) {
+      hideTodayBool = true;
+    } else {
+      localStorage.removeItem('yagssoog_hide_manual_today');
+    }
+  }
+  if (!manualSeen && !hideTodayBool) {
+    setTimeout(() => {
+      if (typeof window.openHelpModal === 'function') {
+        window.openHelpModal();
+      }
+    }, 800);
+  }
 });
 
 let lastCheckedMinute = -1;
@@ -316,6 +336,7 @@ window.applyFontFamily = function(fontName) {
   else if (fontName === 'Inter') fontFamilyStr = "'Inter', sans-serif";
   else fontFamilyStr = `${fontName}, sans-serif`;
   
+  document.documentElement.style.setProperty('--app-font-family', fontFamilyStr);
   document.body.style.fontFamily = fontFamilyStr;
   
   // Sync the select dropdown element
@@ -542,8 +563,11 @@ window.editMedication = function(medId) {
   const timeOptions    = ['오전 8시', '오후 1시', '오후 6시', '오후 9시', '필요시 복용'];
   const instrOptions   = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전', '식전 또는 식간'];
   const catOptions     = ['일반 의약품', '전문의약품', '영양제', '기타'];
-  const makeOpts = (opts, cur) => opts.map(o =>
-    `<option value="${o}" ${o === cur ? 'selected' : ''}>${o}</option>`).join('');
+  const makeOpts = (opts, cur) => {
+    const list = [...opts];
+    if (cur && !list.includes(cur)) list.push(cur);
+    return list.map(o => `<option value="${o}" ${o === cur ? 'selected' : ''}>${o}</option>`).join('');
+  };
 
   const modal = document.createElement('div');
   modal.id = 'edit-med-modal';
@@ -943,9 +967,11 @@ window.editScanResult = function() {
   const instrOptions = ['식후 30분', '식후 즉시', '식전 30분', '공복 복용', '취침 전'];
   const catOptions  = ['일반 의약품', '전문의약품', '영양제', '기타'];
   
-  const makeOptions = (opts, current) => opts.map(o =>
-    `<option value="${o}" ${o === current ? 'selected' : ''}>${o}</option>`
-  ).join('');
+  const makeOptions = (opts, current) => {
+    const list = [...opts];
+    if (current && !list.includes(current)) list.push(current);
+    return list.map(o => `<option value="${o}" ${o === current ? 'selected' : ''}>${o}</option>`).join('');
+  };
   
   container.innerHTML = `
     <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-[28px] shadow-2xl p-6 space-y-5 animate-slide-up">
@@ -1505,6 +1531,8 @@ window.renderAlarms = function() {
           ${soundOptBtnVertical("어르신 (크고 천천히)", "elderly", "elderly")}
           ${soundOptBtnVertical("일반 (표준)", "normal", "notifications")}
           ${soundOptBtnVertical("어린이 (멜로디)", "melody", "child_care")}
+          ${soundOptBtnVertical("경고음 (빠른 비프)", "pulsing", "warning")}
+          ${soundOptBtnVertical("벨소리 (경쾌한 피아노)", "musical", "music_note")}
         </div>
       </div>
     `;
@@ -1632,6 +1660,38 @@ window.testAlarmSound = function(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + times[idx] + 0.35);
       osc.start(ctx.currentTime + times[idx]);
       osc.stop(ctx.currentTime + times[idx] + 0.38);
+    });
+  } else if (type === 'pulsing') {
+    // Pulsing Mode: Fast repeating siren/beeps
+    const notes = [880, 880, 880, 880];
+    const times = [0, 0.15, 0.3, 0.45];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + times[idx]);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + times[idx]);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + times[idx] + 0.1);
+      osc.start(ctx.currentTime + times[idx]);
+      osc.stop(ctx.currentTime + times[idx] + 0.12);
+    });
+  } else if (type === 'musical') {
+    // Musical Mode: Bright active scale tones
+    const notes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50]; // C5, D5, E5, G5, A5, C6
+    const times = [0, 0.08, 0.16, 0.24, 0.32, 0.40];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + times[idx]);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + times[idx]);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + times[idx] + 0.25);
+      osc.start(ctx.currentTime + times[idx]);
+      osc.stop(ctx.currentTime + times[idx] + 0.3);
     });
   }
 };
@@ -1772,7 +1832,9 @@ window.editAlarm = function(id) {
           ${[
             {val:'elderly', label:'어르신', icon:'elderly'},
             {val:'normal',  label:'일반',   icon:'notifications'},
-            {val:'melody',  label:'멜로디', icon:'child_care'}
+            {val:'melody',  label:'멜로디', icon:'child_care'},
+            {val:'pulsing', label:'경고음', icon:'warning'},
+            {val:'musical', label:'벨소리', icon:'music_note'}
           ].map(s => `
             <button onclick="selectEditAlarmSound('${s.val}')" id="edit-sound-${s.val}"
               class="py-2.5 flex flex-col items-center gap-1 rounded-xl border text-xs font-bold transition-all active:scale-95 ${alarm.soundType===s.val ? 'border-2 border-primary bg-primary-container/10 text-primary' : 'border-outline-variant/30 bg-surface-container text-on-surface-variant'}">
@@ -1823,7 +1885,7 @@ window.selectEditAlarmSound = function(soundVal) {
   const modal = document.getElementById('edit-alarm-modal');
   if (!modal) return;
   modal.dataset.selectedSound = soundVal;
-  ['elderly','normal','melody'].forEach(s => {
+  ['elderly','normal','melody','pulsing','musical'].forEach(s => {
     const btn = document.getElementById(`edit-sound-${s}`);
     if (!btn) return;
     if (s === soundVal) {
@@ -2410,6 +2472,153 @@ window.importUserData = function(input) {
     }
   };
   reader.readAsText(file);
+};
+
+// Help Modal carousel implementation for first-time users
+window.openHelpModal = function() {
+  const existing = document.getElementById('help-modal');
+  if (existing) existing.remove();
+
+  const slides = [
+    {
+      title: "약쏘옥에 오신 것을 환영합니다! 🚀",
+      icon: "rocket_launch",
+      color: "primary",
+      desc: "매일 제시간에 약 복용을 도와주는 스마트 비서입니다.<br><br>• 매일 복약 일정을 한눈에 확인하고,<br>• 약을 드신 후 동그라미를 누르면 복용이 체크됩니다.<br>• 깜빡하지 않도록 스마트 알림이 밀착 관리해 드립니다."
+    },
+    {
+      title: "사진만 찍으면 자동 등록! 📸",
+      icon: "photo_camera",
+      color: "secondary",
+      desc: "복잡한 약 이름과 복용법을 직접 입력할 필요가 없습니다.<br><br>• 처방전, 약봉투 등을 카메라로 찍어 올리거나,<br>• 모바일 갤러리의 사진을 업로드해 보세요.<br>• e약은요 공공데이터와 연동해 제품 정보를 찾아 등록해 줍니다."
+    },
+    {
+      title: "어르신도 잘 듣는 맞춤 알림음! 🔔",
+      icon: "volume_up",
+      color: "tertiary",
+      desc: "단조로운 소리 대신 내 귀에 잘 들리는 소리를 고르세요.<br><br>• <b>어르신 모드</b>: 크고 굵은 주파수로 시니어층 특화 알림.<br>• <b>경고음 / 벨소리 / 멜로디 / 일반</b> 등 5종 완비.<br>• 약을 드실 때까지 30분 간격으로 계속 울려 드립니다."
+    },
+    {
+      title: "사랑하는 가족을 위한 보호자 알림! 👨‍👩‍👧",
+      icon: "family_restroom",
+      color: "primary",
+      desc: "부모님이 약을 거르실까 불안하신가요?<br><br>• 복용 알람이 울린 후 30분간 확인되지 않으면,<br>• 등록된 보호자 휴대폰으로 <b>안심 문자(SMS)</b>가 발송됩니다.<br>• [설정] 탭에서 보호자 전화번호를 간단히 등록하세요."
+    },
+    {
+      title: "바탕화면에 앱으로 설치하기 📲",
+      icon: "install_mobile",
+      color: "secondary",
+      desc: "매번 웹주소를 치지 말고 바탕화면에 깔고 쓰세요!<br><br>• <b>안드로이드/크롬</b>: 주소창 옆 설치 아이콘을 클릭합니다.<br>• <b>아이폰/사파리</b>: 하단 <b>[공유]</b> 버튼을 누른 후 <b>[홈 화면에 추가]</b>를 누르시면 진짜 앱처럼 설치됩니다."
+    }
+  ];
+
+  let currentSlide = 0;
+
+  const modal = document.createElement('div');
+  modal.id = 'help-modal';
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4';
+  
+  const updateModalContent = () => {
+    const slide = slides[currentSlide];
+    
+    // Tab buttons
+    const tabsHtml = slides.map((s, idx) => `
+      <button onclick="window._setHelpSlide(${idx})" class="flex-1 flex flex-col items-center gap-1 py-2 border-b-2 transition-all ${idx === currentSlide ? 'border-primary text-primary font-bold' : 'border-transparent text-outline hover:text-on-surface'}">
+        <span class="material-symbols-outlined text-[18px]">${s.icon}</span>
+        <span class="text-[9px]">${idx + 1}단계</span>
+      </button>
+    `).join('');
+
+    // Slide dots indicators
+    const dotsHtml = slides.map((s, idx) => `
+      <div onclick="window._setHelpSlide(${idx})" class="w-2.5 h-2.5 rounded-full cursor-pointer transition-all ${idx === currentSlide ? 'bg-primary scale-125' : 'bg-outline-variant/50 hover:bg-outline-variant'}" title="${idx + 1}단계"></div>
+    `).join('');
+
+    modal.innerHTML = `
+      <div class="w-full max-w-sm bg-surface-container-lowest rounded-[28px] shadow-2xl p-6 flex flex-col gap-4 animate-slide-up">
+        <!-- Top Title & Close -->
+        <div class="flex items-center justify-between pb-2 border-b border-outline-variant/10">
+          <div class="flex items-center gap-2 text-primary font-bold text-[15px]">
+            <span class="material-symbols-outlined text-lg" style="font-variation-settings:'FILL' 1">auto_awesome</span>
+            <span>약쏘옥 사용 설명서</span>
+          </div>
+          <button onclick="document.getElementById('help-modal').remove()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline active:scale-90 transition-all">
+            <span class="material-symbols-outlined text-base">close</span>
+          </button>
+        </div>
+
+        <!-- Horizontal Stage tabs -->
+        <div class="flex border-b border-outline-variant/20 -mt-2">
+          ${tabsHtml}
+        </div>
+
+        <!-- Slide Body Container -->
+        <div class="py-4 flex flex-col items-center text-center gap-3 min-h-[220px]">
+          <div class="w-16 h-16 rounded-2xl bg-${slide.color}-container flex items-center justify-center text-${slide.color} shadow-sm">
+            <span class="material-symbols-outlined text-[36px]" style="font-variation-settings:'FILL' 1">${slide.icon}</span>
+          </div>
+          <h4 class="font-headline-md text-base text-on-surface font-bold mt-1">${slide.title}</h4>
+          <p class="font-body-md text-xs text-on-surface-variant leading-relaxed text-left w-full px-1">${slide.desc}</p>
+        </div>
+
+        <!-- Footer: Indicators + Prev/Next Buttons -->
+        <div class="flex items-center justify-between pt-2 border-t border-outline-variant/10">
+          <!-- Indicators -->
+          <div class="flex gap-2">
+            ${dotsHtml}
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2">
+            ${currentSlide > 0 ? `
+              <button onclick="window._setHelpSlide(${currentSlide - 1})" class="px-3.5 py-1.5 border border-outline-variant text-on-surface-variant font-bold rounded-xl text-xs active:scale-95 transition-all flex items-center gap-0.5">이전</button>
+            ` : ''}
+            
+            ${currentSlide < slides.length - 1 ? `
+              <button onclick="window._setHelpSlide(${currentSlide + 1})" class="px-4 py-1.5 bg-primary text-on-primary font-bold rounded-xl text-xs active:scale-95 transition-all flex items-center gap-0.5 shadow-sm">다음 <span class="material-symbols-outlined text-xs">chevron_right</span></button>
+            ` : `
+              <button onclick="window.closeHelpAndMarkSeen()" class="px-4 py-1.5 bg-secondary text-on-secondary font-bold rounded-xl text-xs active:scale-95 transition-all flex items-center gap-0.5 shadow-sm">시작하기 <span class="material-symbols-outlined text-xs">check</span></button>
+            `}
+          </div>
+        </div>
+
+        <!-- Auto-popup Don't show today check -->
+        <div class="flex justify-between items-center -mt-2 pt-1 border-t border-outline-variant/10">
+          <label class="flex items-center gap-1.5 cursor-pointer select-none text-[11px] text-outline hover:text-on-surface-variant">
+            <input type="checkbox" id="help-hide-today" onchange="window.toggleHideHelpToday(this)" class="w-3.5 h-3.5 rounded border-outline-variant/50 text-primary focus:ring-0"/>
+            오늘 하루 보지 않기
+          </label>
+        </div>
+      </div>
+    `;
+  };
+
+  window._setHelpSlide = function(idx) {
+    if (idx >= 0 && idx < slides.length) {
+      currentSlide = idx;
+      updateModalContent();
+    }
+  };
+
+  window.closeHelpAndMarkSeen = function() {
+    localStorage.setItem('yagssoog_manual_seen', 'true');
+    const modal = document.getElementById('help-modal');
+    if (modal) modal.remove();
+  };
+
+  window.toggleHideHelpToday = function(chk) {
+    if (chk.checked) {
+      localStorage.setItem('yagssoog_hide_manual_today', Date.now());
+    } else {
+      localStorage.removeItem('yagssoog_hide_manual_today');
+    }
+  };
+
+  updateModalContent();
+  document.body.appendChild(modal);
+
+  // Close on backdrop tap
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 };
 
 

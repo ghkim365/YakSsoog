@@ -8,7 +8,7 @@
   "icons": [
     {
       "src": "assets/YakSsoog_logo_500x500.png",
-      "sizes": "500x500",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }

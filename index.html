@@ -123,9 +123,11 @@
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
+    body, button, select, input, textarea, [class*="font-"] {
+      font-family: var(--app-font-family, 'Pretendard'), sans-serif !important;
+    }
     body {
       background-color: #fbf9f4;
-      font-family: 'Noto Sans KR', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
     
@@ -253,6 +255,15 @@
           </div>
           <h1 class="font-headline-md text-headline-md-mobile text-primary font-bold" id="app-header-title">약쏘옥</h1>
         </div>
+        
+        <!-- Center Help Button -->
+        <div id="header-help-container" class="flex justify-center">
+          <button onclick="openHelpModal()" class="flex items-center gap-1 px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-full text-[11px] font-bold transition-all active:scale-95 btn-active-depress">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">help</span>
+            사용 안내
+          </button>
+        </div>
+
         <div class="flex flex-col items-end">
           <span class="text-on-surface-variant font-semibold text-xs" id="app-header-date">10월 24일 (목)</span>
           <span class="text-outline text-[10px] font-medium" id="app-header-lunar">음력 —</span>
@@ -534,7 +545,7 @@
           <div class="space-y-2 px-2">
             <label class="block font-label-lg text-on-surface-variant">공공데이터 인증키 (Service Key)</label>
             <div class="flex gap-2">
-              <input type="password" id="api-key-input" placeholder="인증키(Service Key) 입력" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
+              <input type="text" id="api-key-input" placeholder="인증키(Service Key) 입력" style="-webkit-text-security: disc;" autocomplete="off" class="flex-1 font-body-md bg-surface-container rounded-xl border border-outline-variant/30 px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"/>
               <button onclick="saveApiKey()" class="btn-active-depress bg-secondary text-on-secondary font-label-lg px-4 py-2 rounded-xl active:scale-95 transition-all">저장</button>
             </div>
             <p class="text-[10px] text-outline leading-normal mt-2">
