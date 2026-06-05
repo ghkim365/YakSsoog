@@ -39,8 +39,8 @@ const DEFAULT_MEDICATIONS = [
     "name": "덴치원캡슐",
     "company": "신일제약 (API 보완적용)",
     "expiry": "2028.05",
-    "time": "필요시 복용",
-    "instruction": "공복 복용",
+    "time": "식전 또는 식간",
+    "instruction": "1회 2캡슐 (1일 3회)",
     "category": "치통 치료제 (생약)",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_43/20250522052227195_13KU7NNNY.jpg/202303093.jpg?type=m4500_4500_fst_n&wm=Y",
@@ -52,7 +52,7 @@ const DEFAULT_MEDICATIONS = [
     "company": "알 수 없음",
     "expiry": "2028.05",
     "time": "필요시 복용",
-    "instruction": "공복 복용",
+    "instruction": "취침 전",
     "category": "일반 의약품",
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114082917089_5RGIVTSTR.jpg/200607863.jpg?type=m4500_4500_fst_n&wm=Y",
@@ -93,52 +93,40 @@ const DEFAULT_MEDICATIONS = [
     "taken": false,
     "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114072607892_E9JZY447J.jpg/200201239.jpg?type=m4500_4500_fst_n&wm=Y",
     "price": "약 9,500원"
-  },
-  {
-    "id": 1780235928683,
-    "name": "카나브정30mg(피마사르탄칼륨삼수화물)",
-    "company": "(주)보령",
-    "expiry": "2028.05",
-    "time": "오전 8시",
-    "instruction": "식후 30분",
-    "category": "일반 의약품",
-    "taken": true,
-    "img": "https://dbscthumb-phinf.pstatic.net/3323_000_35/20231114101707545_RRO7SSQEE.jpg/201207542.jpg?type=m4500_4500_fst_n&wm=Y",
-    "price": "약 9,000원"
   }
 ];
 
 // Default Alarm settings matching _4/code.html mockups
 const DEFAULT_ALARMS = [
   {
-    "id": 1780235959108,
-    "medName": "카나브정30mg(피마사르탄칼륨삼수화물)",
+    "id": 1,
+    "medName": "혈압약 (아모디핀)",
     "time": "08:00",
     "period": "AM",
     "active": true,
-    "soundType": "normal",
+    "soundType": "musical",
     "icon": "pill",
     "color": "primary"
   },
   {
-    "id": 1780235993156,
-    "medName": "보령알벤다졸정",
-    "time": "08:00",
-    "period": "AM",
-    "active": true,
+    "id": 2,
+    "medName": "종합 비타민",
+    "time": "12:30",
+    "period": "PM",
+    "active": false,
     "soundType": "normal",
-    "icon": "pill",
-    "color": "primary"
+    "icon": "medication",
+    "color": "secondary"
   },
   {
-    "id": 1780237127533,
-    "medName": "덴치원캡슐",
-    "time": "08:00",
-    "period": "AM",
+    "id": 3,
+    "medName": "수면 보조제",
+    "time": "10:00",
+    "period": "PM",
     "active": true,
-    "soundType": "normal",
-    "icon": "pill",
-    "color": "primary"
+    "soundType": "melody",
+    "icon": "nightlight",
+    "color": "tertiary"
   }
 ];
 
