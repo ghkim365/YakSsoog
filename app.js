@@ -3095,6 +3095,36 @@ window.openHelpModal = function() {
   updateModalContent();
   document.body.appendChild(modal);
 
+  // Swipe gesture support for mobile devices
+  let touchStartX = 0;
+  let touchStartY = 0;
+  modal.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  modal.addEventListener('touchend', e => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+
+    // Trigger horizontal swipe if movement exceeds 50px and is primarily horizontal
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX < 0) {
+        // Swipe left -> Next slide
+        if (currentSlide < slides.length - 1) {
+          window._setHelpSlide(currentSlide + 1);
+        }
+      } else {
+        // Swipe right -> Prev slide
+        if (currentSlide > 0) {
+          window._setHelpSlide(currentSlide - 1);
+        }
+      }
+    }
+  }, { passive: true });
+
   // Close on backdrop tap
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 };
